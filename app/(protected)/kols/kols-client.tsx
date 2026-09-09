@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useTransition, useMemo } from "react";
+import { useState, useEffect, useTransition, useMemo } from "react";
 import type { Kol, CreateKolInput, KolPlatform } from "@/lib/types/kol";
 import { createKol, updateKol, deleteKol } from "@/lib/services/kols";
+import CustomSelect from "@/components/ui/custom-select";
+import PlatformIcon from "@/components/icons/platform-icon";
 
 interface KolsClientProps {
   initialKols: Kol[];
@@ -14,7 +16,7 @@ const PLATFORMS: { label: string; value: KolPlatform }[] = [
   { label: "Instagram", value: "instagram" },
   { label: "YouTube", value: "youtube" },
   { label: "Shopee", value: "shopee" },
-  { label: "Other", value: "other" },
+  { label: "Khác", value: "other" },
 ];
 
 export default function KolsClient({ initialKols }: KolsClientProps) {
@@ -48,6 +50,18 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
   const [formError, setFormError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  // Escape key handler for modals
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (confirmDeleteKol) setConfirmDeleteKol(null);
+        else if (isModalOpen) setIsModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [confirmDeleteKol, isModalOpen]);
 
   // Filtered KOLs
   const filteredKols = useMemo(() => {
@@ -109,13 +123,13 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
 
     const username = formData.username.trim();
     if (!username) {
-      setFormError("Username is required.");
+      setFormError("Vui lòng nhập Username của KOL.");
       return;
     }
 
     const followersCount = Number(formData.followers_count ?? 0);
     if (isNaN(followersCount) || followersCount < 0) {
-      setFormError("Followers count must be a non-negative number.");
+      setFormError("Số lượng người theo dõi không được là số âm.");
       return;
     }
 
@@ -162,7 +176,7 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
     startTransition(async () => {
       const res = await deleteKol(kol.id);
       if (!res.success) {
-        setActionError(res.error || "Failed to delete KOL.");
+        setActionError(res.error || "Không thể xóa KOL.");
       } else {
         setKols((prev) => prev.filter((k) => k.id !== kol.id));
       }
@@ -179,17 +193,17 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
   const getPlatformBadge = (platform: KolPlatform) => {
     switch (platform) {
       case "tiktok":
-        return "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900";
+        return "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-700";
       case "facebook":
-        return "bg-blue-600 text-white";
+        return "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-900/60";
       case "instagram":
-        return "bg-pink-600 text-white";
+        return "bg-pink-50 text-pink-700 dark:bg-pink-950/40 dark:text-pink-300 border border-pink-200 dark:border-pink-900/60";
       case "youtube":
-        return "bg-red-600 text-white";
+        return "bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-900/60";
       case "shopee":
-        return "bg-orange-500 text-white";
+        return "bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300 border border-orange-200 dark:border-orange-900/60";
       default:
-        return "bg-zinc-500 text-white";
+        return "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700";
     }
   };
 
@@ -199,10 +213,10 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            KOL / KOC Directory
+            Danh bạ KOL / KOC
           </h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            Manage creator profiles, channels, contact details, and audience metrics.
+            Quản lý hồ sơ nhà sáng tạo, kênh mạng xã hội, thông tin liên hệ và số lượng người theo dõi.
           </p>
         </div>
 
@@ -214,7 +228,7 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          Add Creator
+          Thêm KOL mới
         </button>
       </div>
 
@@ -226,7 +240,7 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
             onClick={() => setActionError(null)}
             className="text-xs font-semibold underline ml-4 cursor-pointer"
           >
-            Dismiss
+            Đóng
           </button>
         </div>
       )}
@@ -247,23 +261,23 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by username, display name, niche, phone..."
+            placeholder="Tìm theo username, tên hiển thị, ngành hàng, SĐT..."
             className="w-full pl-10 pr-4 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm focus:outline-hidden focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100"
           />
         </div>
 
         {/* Platform Tabs */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
           <button
             type="button"
             onClick={() => setSelectedPlatform("all")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer whitespace-nowrap ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer whitespace-nowrap ${
               selectedPlatform === "all"
-                ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
+                ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-2xs"
                 : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             }`}
           >
-            All ({kols.length})
+            Tất cả ({kols.length})
           </button>
           {PLATFORMS.map((p) => {
             const count = kols.filter((k) => k.platform === p.value).length;
@@ -272,13 +286,15 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                 key={p.value}
                 type="button"
                 onClick={() => setSelectedPlatform(p.value)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer whitespace-nowrap ${
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer whitespace-nowrap ${
                   selectedPlatform === p.value
-                    ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
+                    ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-2xs"
                     : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 }`}
               >
-                {p.label} ({count})
+                <PlatformIcon platform={p.value} size="xs" />
+                <span>{p.label}</span>
+                <span className="text-[11px] opacity-70">({count})</span>
               </button>
             );
           })}
@@ -294,12 +310,12 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
             </svg>
           </div>
           <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-            {kols.length === 0 ? "No creators yet" : "No matching creators found"}
+            {kols.length === 0 ? "Chưa có KOL nào" : "Không tìm thấy KOL phù hợp"}
           </h3>
           <p className="text-xs text-zinc-500 max-w-sm mx-auto">
             {kols.length === 0
-              ? "Start building your creator roster by adding your first KOL or KOC."
-              : "Try adjusting your search query or platform filter to find what you're looking for."}
+              ? "Bắt đầu xây dựng danh bạ bằng cách thêm KOL hoặc KOC đầu tiên của bạn."
+              : "Thử điều chỉnh từ khóa tìm kiếm hoặc bộ lọc nền tảng để tìm kết quả."}
           </p>
           {kols.length === 0 && (
             <button
@@ -307,7 +323,7 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
               onClick={openCreateModal}
               className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-semibold hover:opacity-90 transition cursor-pointer"
             >
-              Add Your First KOL
+              Thêm KOL đầu tiên
             </button>
           )}
         </div>
@@ -317,12 +333,12 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
             <table className="w-full text-left text-sm">
               <thead className="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 uppercase tracking-wider font-semibold">
                 <tr>
-                  <th className="px-6 py-3.5">Creator</th>
-                  <th className="px-6 py-3.5">Platform</th>
-                  <th className="px-6 py-3.5">Followers</th>
-                  <th className="px-6 py-3.5">Niche</th>
-                  <th className="px-6 py-3.5">Contact</th>
-                  <th className="px-6 py-3.5 text-right">Actions</th>
+                  <th className="px-6 py-3.5">Nhà sáng tạo</th>
+                  <th className="px-6 py-3.5">Nền tảng</th>
+                  <th className="px-6 py-3.5">Người theo dõi</th>
+                  <th className="px-6 py-3.5">Ngành hàng</th>
+                  <th className="px-6 py-3.5">Liên hệ</th>
+                  <th className="px-6 py-3.5 text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -338,7 +354,7 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                               target="_blank"
                               rel="noreferrer"
                               className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
-                              title="Visit Channel"
+                              title="Xem kênh"
                             >
                               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -352,11 +368,12 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
 
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wider ${getPlatformBadge(
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wider ${getPlatformBadge(
                           kol.platform
                         )}`}
                       >
-                        {kol.platform}
+                        <PlatformIcon platform={kol.platform} size="xs" />
+                        <span className="capitalize">{kol.platform}</span>
                       </span>
                     </td>
 
@@ -392,7 +409,7 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                           onClick={() => openEditModal(kol)}
                           className="px-2.5 py-1 text-xs font-medium rounded-lg text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
                         >
-                          Edit
+                          Sửa
                         </button>
                         <button
                           type="button"
@@ -400,7 +417,7 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                           onClick={() => setConfirmDeleteKol(kol)}
                           className="px-2.5 py-1 text-xs font-medium rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 transition cursor-pointer disabled:opacity-50"
                         >
-                          {deletingId === kol.id ? "Deleting..." : "Delete"}
+                          {deletingId === kol.id ? "Đang xóa..." : "Xóa"}
                         </button>
                       </div>
                     </td>
@@ -414,11 +431,17 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
 
       {/* Create / Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs">
-          <div className="w-full max-w-xl bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div
+          onClick={() => setIsModalOpen(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-xl bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 cursor-default"
+          >
             <div className="px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
               <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
-                {editingKol ? "Edit Creator" : "Add New Creator"}
+                {editingKol ? "Chỉnh sửa KOL" : "Thêm KOL mới"}
               </h2>
               <button
                 type="button"
@@ -440,14 +463,14 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                 {/* Username */}
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Username / Handle <span className="text-red-500">*</span>
+                    Tài khoản / Username <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     required
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    placeholder="lananh_beauty (without @)"
+                    placeholder="lananh_beauty (không có @)"
                     className="w-full px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm focus:outline-hidden focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100"
                   />
                 </div>
@@ -455,19 +478,17 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                 {/* Platform */}
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Platform <span className="text-red-500">*</span>
+                    Nền tảng <span className="text-red-500">*</span>
                   </label>
-                  <select
+                  <CustomSelect
                     value={formData.platform}
-                    onChange={(e) => setFormData({ ...formData, platform: e.target.value as KolPlatform })}
-                    className="w-full px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm focus:outline-hidden focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100"
-                  >
-                    {PLATFORMS.map((p) => (
-                      <option key={p.value} value={p.value}>
-                        {p.label}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setFormData({ ...formData, platform: val as KolPlatform })}
+                    options={PLATFORMS.map((p) => ({
+                      value: p.value,
+                      label: p.label,
+                      icon: <PlatformIcon platform={p.value} size="sm" />,
+                    }))}
+                  />
                 </div>
               </div>
 
@@ -475,7 +496,7 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                 {/* Display Name */}
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Display Name / Nickname
+                    Tên hiển thị / Biệt danh
                   </label>
                   <input
                     type="text"
@@ -489,7 +510,7 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                 {/* Followers Count */}
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Followers Count
+                    Số lượng người theo dõi
                   </label>
                   <input
                     type="number"
@@ -505,7 +526,7 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                 {/* Channel URL */}
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Channel / Profile Link
+                    Liên kết kênh / Trang cá nhân
                   </label>
                   <input
                     type="url"
@@ -519,13 +540,13 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                 {/* Niche */}
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Niche / Category
+                    Ngành hàng / Lĩnh vực
                   </label>
                   <input
                     type="text"
                     value={formData.niche || ""}
                     onChange={(e) => setFormData({ ...formData, niche: e.target.value })}
-                    placeholder="Beauty, Haircare, Lifestyle..."
+                    placeholder="Làm đẹp, Thời trang, Ẩm thực..."
                     className="w-full px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm"
                   />
                 </div>
@@ -535,7 +556,7 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Phone Number
+                    Số điện thoại
                   </label>
                   <input
                     type="tel"
@@ -554,7 +575,7 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                     type="text"
                     value={formData.contact_zalo || ""}
                     onChange={(e) => setFormData({ ...formData, contact_zalo: e.target.value })}
-                    placeholder="Zalo number or link"
+                    placeholder="Số Zalo hoặc link"
                     className="w-full px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm"
                   />
                 </div>
@@ -576,13 +597,13 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
               {/* Address */}
               <div>
                 <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                  Default Shipping Address
+                  Địa chỉ nhận hàng mặc định
                 </label>
                 <input
                   type="text"
                   value={formData.address || ""}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  placeholder="Street, District, City..."
+                  placeholder="Số nhà, tên đường, phường/xã, quận/huyện..."
                   className="w-full px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm"
                 />
               </div>
@@ -590,13 +611,13 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
               {/* Notes */}
               <div>
                 <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                  Internal Notes
+                  Ghi chú nội bộ
                 </label>
                 <textarea
                   rows={2}
                   value={formData.notes || ""}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder="Style, pricing remarks, working habit..."
+                  placeholder="Phong cách làm việc, lưu ý giá cả, thỏa thuận..."
                   className="w-full px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm"
                 />
               </div>
@@ -608,14 +629,14 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                   onClick={() => setIsModalOpen(false)}
                   className="px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition cursor-pointer"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
                   className="px-5 py-2 rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-semibold hover:opacity-90 transition shadow-xs cursor-pointer disabled:opacity-50"
                 >
-                  {isPending ? "Saving..." : editingKol ? "Save Changes" : "Create Creator"}
+                  {isPending ? "Đang lưu..." : editingKol ? "Lưu thay đổi" : "Tạo KOL"}
                 </button>
               </div>
             </form>
@@ -625,13 +646,19 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
 
       {/* Delete Confirmation Modal */}
       {confirmDeleteKol && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs">
-          <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xl p-6 space-y-4">
+        <div
+          onClick={() => setConfirmDeleteKol(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xl p-6 space-y-4 cursor-default"
+          >
             <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
-              Delete Creator @{confirmDeleteKol.username}?
+              Xác nhận xóa KOL @{confirmDeleteKol.username}?
             </h3>
             <p className="text-xs text-zinc-600 dark:text-zinc-400">
-              Are you sure you want to delete this creator? This action cannot be undone. If they have active bookings, the database will protect them from accidental deletion.
+              Bạn có chắc chắn muốn xóa nhà sáng tạo này? Thao tác này không thể hoàn tác. Nếu KOL đang có booking hợp tác, cơ sở dữ liệu sẽ bảo vệ và chặn xóa ngoài ý muốn.
             </p>
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
@@ -639,14 +666,14 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                 onClick={() => setConfirmDeleteKol(null)}
                 className="px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition cursor-pointer"
               >
-                Cancel
+                Hủy
               </button>
               <button
                 type="button"
                 onClick={() => handleDelete(confirmDeleteKol)}
                 className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-semibold hover:bg-red-700 transition shadow-xs cursor-pointer"
               >
-                Confirm Delete
+                Xác nhận xóa
               </button>
             </div>
           </div>

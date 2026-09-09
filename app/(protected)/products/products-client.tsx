@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useMemo } from "react";
+import { useState, useEffect, useTransition, useMemo } from "react";
 import type { Product, CreateProductInput } from "@/lib/types/product";
 import { createProduct, updateProduct, deleteProduct } from "@/lib/services/products";
 
@@ -39,6 +39,18 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
   const [formError, setFormError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  // Escape key handler for modals
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (confirmDeleteProduct) setConfirmDeleteProduct(null);
+        else if (isModalOpen) setIsModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [confirmDeleteProduct, isModalOpen]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
@@ -102,25 +114,25 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
 
     const name = formData.name.trim();
     if (!name) {
-      setFormError("Product name is required.");
+      setFormError("Vui lòng nhập tên sản phẩm.");
       return;
     }
 
     const sampleCost = Number(formData.sample_cost ?? 0);
     if (isNaN(sampleCost) || sampleCost < 0) {
-      setFormError("Sample cost must be >= 0.");
+      setFormError("Chi phí mẫu phải lớn hơn hoặc bằng 0.");
       return;
     }
 
     const commissionRate = Number(formData.default_commission_rate ?? 0);
     if (isNaN(commissionRate) || commissionRate < 0 || commissionRate > 100) {
-      setFormError("Commission rate must be between 0% and 100%.");
+      setFormError("% Hoa hồng phải nằm trong khoảng từ 0% đến 100%.");
       return;
     }
 
     const adsRate = Number(formData.default_ads_rate ?? 0);
     if (isNaN(adsRate) || adsRate < 0 || adsRate > 100) {
-      setFormError("Ads rate must be between 0% and 100%.");
+      setFormError("% Ngân sách ads phải nằm trong khoảng từ 0% đến 100%.");
       return;
     }
 
@@ -169,7 +181,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
     startTransition(async () => {
       const res = await deleteProduct(p.id);
       if (!res.success) {
-        setActionError(res.error || "Failed to delete product.");
+        setActionError(res.error || "Không thể xóa sản phẩm.");
       } else {
         setProducts((prev) => prev.filter((item) => item.id !== p.id));
       }
@@ -190,10 +202,10 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Product Catalog
+            Danh mục Sản phẩm
           </h1>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            Define promotional products, sample unit costs, and default affiliate/ads rates.
+            Quản lý danh mục sản phẩm tiếp thị, giá vốn hàng mẫu và tỷ lệ hoa hồng/ngân sách quảng cáo mặc định.
           </p>
         </div>
 
@@ -205,7 +217,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          Add Product
+          Thêm sản phẩm mới
         </button>
       </div>
 
@@ -217,7 +229,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
             onClick={() => setActionError(null)}
             className="text-xs font-semibold underline ml-4 cursor-pointer"
           >
-            Dismiss
+            Đóng
           </button>
         </div>
       )}
@@ -237,7 +249,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by product name, brand, SKU..."
+            placeholder="Tìm theo tên sản phẩm, thương hiệu, mã SKU..."
             className="w-full pl-10 pr-4 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm focus:outline-hidden focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100"
           />
         </div>
@@ -252,7 +264,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
                 : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             }`}
           >
-            All ({products.length})
+            Tất cả ({products.length})
           </button>
           <button
             type="button"
@@ -263,7 +275,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
                 : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             }`}
           >
-            Active ({products.filter((p) => p.is_active).length})
+            Đang hoạt động ({products.filter((p) => p.is_active).length})
           </button>
           <button
             type="button"
@@ -274,7 +286,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
                 : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             }`}
           >
-            Inactive ({products.filter((p) => !p.is_active).length})
+            Đã lưu trữ ({products.filter((p) => !p.is_active).length})
           </button>
         </div>
       </div>
@@ -288,12 +300,12 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
             </svg>
           </div>
           <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-            {products.length === 0 ? "No products yet" : "No matching products found"}
+            {products.length === 0 ? "Chưa có sản phẩm nào" : "Không tìm thấy sản phẩm phù hợp"}
           </h3>
           <p className="text-xs text-zinc-500 max-w-sm mx-auto">
             {products.length === 0
-              ? "Create your first product to attach to future creator bookings."
-              : "Try adjusting your search query or status filter."}
+              ? "Tạo sản phẩm đầu tiên để liên kết vào các booking hợp tác nhà sáng tạo."
+              : "Thử điều chỉnh từ khóa tìm kiếm hoặc bộ lọc trạng thái."}
           </p>
           {products.length === 0 && (
             <button
@@ -301,7 +313,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
               onClick={openCreateModal}
               className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-semibold hover:opacity-90 transition cursor-pointer"
             >
-              Add Your First Product
+              Thêm sản phẩm đầu tiên
             </button>
           )}
         </div>
@@ -311,13 +323,13 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
             <table className="w-full text-left text-sm">
               <thead className="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 uppercase tracking-wider font-semibold">
                 <tr>
-                  <th className="px-6 py-3.5">Product</th>
-                  <th className="px-6 py-3.5">SKU / Brand</th>
-                  <th className="px-6 py-3.5">Sample Cost</th>
-                  <th className="px-6 py-3.5">Commission</th>
-                  <th className="px-6 py-3.5">Ads Rate</th>
-                  <th className="px-6 py-3.5">Status</th>
-                  <th className="px-6 py-3.5 text-right">Actions</th>
+                  <th className="px-6 py-3.5">Sản phẩm</th>
+                  <th className="px-6 py-3.5">Mã SKU / Thương hiệu</th>
+                  <th className="px-6 py-3.5">Giá vốn mẫu</th>
+                  <th className="px-6 py-3.5">Hoa hồng (%)</th>
+                  <th className="px-6 py-3.5">Định mức Ads (%)</th>
+                  <th className="px-6 py-3.5">Trạng thái</th>
+                  <th className="px-6 py-3.5 text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -333,7 +345,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
                               target="_blank"
                               rel="noreferrer"
                               className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
-                              title="Product Link"
+                              title="Xem link sản phẩm"
                             >
                               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -372,7 +384,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
                             : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700"
                         }`}
                       >
-                        {p.is_active ? "Active" : "Archived"}
+                        {p.is_active ? "Đang dùng" : "Lưu trữ"}
                       </span>
                     </td>
 
@@ -383,7 +395,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
                           onClick={() => openEditModal(p)}
                           className="px-2.5 py-1 text-xs font-medium rounded-lg text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
                         >
-                          Edit
+                          Sửa
                         </button>
                         <button
                           type="button"
@@ -391,7 +403,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
                           onClick={() => setConfirmDeleteProduct(p)}
                           className="px-2.5 py-1 text-xs font-medium rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 transition cursor-pointer disabled:opacity-50"
                         >
-                          {deletingId === p.id ? "Deleting..." : "Delete"}
+                          {deletingId === p.id ? "Đang xóa..." : "Xóa"}
                         </button>
                       </div>
                     </td>
@@ -405,11 +417,17 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs">
-          <div className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div
+          onClick={() => setIsModalOpen(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-lg bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 cursor-default"
+          >
             <div className="px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
               <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
-                {editingProduct ? "Edit Product" : "Add New Product"}
+                {editingProduct ? "Chỉnh sửa Sản phẩm" : "Thêm Sản phẩm mới"}
               </h2>
               <button
                 type="button"
@@ -429,7 +447,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
 
               <div>
                 <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                  Product Name <span className="text-red-500">*</span>
+                  Tên sản phẩm <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -444,7 +462,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Brand
+                    Thương hiệu
                   </label>
                   <input
                     type="text"
@@ -457,7 +475,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
 
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    SKU Code
+                    Mã SKU
                   </label>
                   <input
                     type="text"
@@ -472,7 +490,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Sample Cost (VNĐ)
+                    Giá vốn mẫu (VNĐ)
                   </label>
                   <input
                     type="number"
@@ -486,7 +504,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
 
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Commission (%)
+                    Hoa hồng (%)
                   </label>
                   <input
                     type="number"
@@ -501,7 +519,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
 
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Ads Rate (%)
+                    Định mức Ads (%)
                   </label>
                   <input
                     type="number"
@@ -518,7 +536,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Product Page URL
+                    Link trang sản phẩm
                   </label>
                   <input
                     type="url"
@@ -531,7 +549,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
 
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                    Affiliate Link
+                    Link tiếp thị Affiliate
                   </label>
                   <input
                     type="url"
@@ -545,13 +563,13 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
 
               <div>
                 <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                  Product USP / Brief Description
+                  Điểm bán hàng (USP) / Mô tả tóm tắt
                 </label>
                 <textarea
                   rows={2}
                   value={formData.description || ""}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Key selling points to share with creators..."
+                  placeholder="Các điểm bán hàng cốt lõi gửi cho KOL làm video..."
                   className="w-full px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm"
                 />
               </div>
@@ -565,7 +583,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
                   className="w-4 h-4 rounded text-zinc-900 dark:text-zinc-100 focus:ring-zinc-900 cursor-pointer"
                 />
                 <label htmlFor="is_active" className="text-xs font-medium text-zinc-700 dark:text-zinc-300 cursor-pointer">
-                  Available for creator bookings (Active)
+                  Sẵn sàng áp dụng cho booking KOL (Đang hoạt động)
                 </label>
               </div>
 
@@ -576,14 +594,14 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
                   onClick={() => setIsModalOpen(false)}
                   className="px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition cursor-pointer"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
                   className="px-5 py-2 rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-semibold hover:opacity-90 transition shadow-xs cursor-pointer disabled:opacity-50"
                 >
-                  {isPending ? "Saving..." : editingProduct ? "Save Changes" : "Create Product"}
+                  {isPending ? "Đang lưu..." : editingProduct ? "Lưu thay đổi" : "Tạo sản phẩm"}
                 </button>
               </div>
             </form>
@@ -593,13 +611,19 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
 
       {/* Delete Confirmation */}
       {confirmDeleteProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs">
-          <div className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xl p-6 space-y-4">
+        <div
+          onClick={() => setConfirmDeleteProduct(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xl p-6 space-y-4 cursor-default"
+          >
             <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
-              Delete Product &quot;{confirmDeleteProduct.name}&quot;?
+              Xác nhận xóa sản phẩm &quot;{confirmDeleteProduct.name}&quot;?
             </h3>
             <p className="text-xs text-zinc-600 dark:text-zinc-400">
-              Are you sure you want to delete this product? If it is already associated with past bookings, the database will safely disassociate it.
+              Bạn có chắc chắn muốn xóa sản phẩm này? Nếu sản phẩm đã từng được gán vào các booking trước đó, hệ thống sẽ tự động gỡ liên kết an toàn.
             </p>
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
@@ -607,14 +631,14 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
                 onClick={() => setConfirmDeleteProduct(null)}
                 className="px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition cursor-pointer"
               >
-                Cancel
+                Hủy
               </button>
               <button
                 type="button"
                 onClick={() => handleDelete(confirmDeleteProduct)}
                 className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-semibold hover:bg-red-700 transition shadow-xs cursor-pointer"
               >
-                Confirm Delete
+                Xác nhận xóa
               </button>
             </div>
           </div>

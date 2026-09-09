@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
@@ -6,8 +7,9 @@ import type { UserProfile } from "./types";
 /**
  * Retrieves the currently authenticated user on the server.
  * Uses auth.getUser() as the trusted source of truth.
+ * Deduplicated per-request via React.cache().
  */
-export async function getCurrentUser(): Promise<{
+export const getCurrentUser = cache(async function getCurrentUser(): Promise<{
   user: User | null;
   error: string | null;
 }> {
@@ -29,13 +31,14 @@ export async function getCurrentUser(): Promise<{
       error: err instanceof Error ? err.message : "Failed to get user",
     };
   }
-}
+});
 
 /**
  * Retrieves the currently authenticated user and their profile
  * from public.profiles (linked by auth.users.id -> profiles.id).
+ * Deduplicated per-request via React.cache().
  */
-export async function getCurrentProfile(): Promise<{
+export const getCurrentProfile = cache(async function getCurrentProfile(): Promise<{
   user: User | null;
   profile: UserProfile | null;
   error: string | null;
@@ -73,7 +76,7 @@ export async function getCurrentProfile(): Promise<{
       error: err instanceof Error ? err.message : "Failed to get profile",
     };
   }
-}
+});
 
 /**
  * Enforces authentication in Server Components or Server Actions.

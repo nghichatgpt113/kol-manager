@@ -38,4 +38,4 @@ export interface CreateKolInput {
   notes?: string | null;
 }
 
-export interface UpdateKolInput extends Partial<CreateKolInput> {}
+export type UpdateKolInput = Partial<CreateKolInput>;

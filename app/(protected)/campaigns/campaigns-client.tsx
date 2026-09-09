@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useTransition, useMemo } from "react";
+import { useState, useEffect, useTransition, useMemo } from "react";
 import type { Campaign, CreateCampaignInput, CampaignStatus } from "@/lib/types/campaign";
 import { createCampaign, updateCampaign, deleteCampaign } from "@/lib/services/campaigns";
+import CustomSelect from "@/components/ui/custom-select";
+import DatePicker from "@/components/ui/date-picker";
 
 interface CampaignsClientProps {
   initialCampaigns: Campaign[];
@@ -13,29 +15,37 @@ const STATUS_CONFIG: Record<
   { label: string; bg: string; text: string; dot: string }
 > = {
   planning: {
-    label: "Planning",
+    label: "Lập kế hoạch",
     bg: "bg-amber-500/10 border-amber-500/20",
     text: "text-amber-700 dark:text-amber-400",
     dot: "bg-amber-500",
   },
   active: {
-    label: "Active",
+    label: "Đang chạy",
     bg: "bg-emerald-500/10 border-emerald-500/20",
     text: "text-emerald-700 dark:text-emerald-400",
     dot: "bg-emerald-500",
   },
   paused: {
-    label: "Paused",
+    label: "Tạm dừng",
     bg: "bg-zinc-500/10 border-zinc-500/20",
     text: "text-zinc-600 dark:text-zinc-400",
     dot: "bg-zinc-400",
   },
   completed: {
-    label: "Completed",
+    label: "Đã hoàn thành",
     bg: "bg-blue-500/10 border-blue-500/20",
     text: "text-blue-700 dark:text-blue-400",
     dot: "bg-blue-500",
   },
+};
+
+const STATUS_FILTER_LABELS: Record<CampaignStatus | "all", string> = {
+  all: "Tất cả",
+  planning: "Lập kế hoạch",
+  active: "Đang chạy",
+  paused: "Tạm dừng",
+  completed: "Đã hoàn thành",
 };
 
 export default function CampaignsClient({ initialCampaigns }: CampaignsClientProps) {
@@ -66,6 +76,18 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
   const [formError, setFormError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  // Escape key handler for modals
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (confirmDeleteCampaign) setConfirmDeleteCampaign(null);
+        else if (isModalOpen) setIsModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [confirmDeleteCampaign, isModalOpen]);
 
   // Metrics
   const metrics = useMemo(() => {
@@ -131,14 +153,14 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
     setFormError(null);
 
     if (!formData.name?.trim()) {
-      setFormError("Campaign name is required.");
+      setFormError("Vui lòng nhập tên chiến dịch.");
       return;
     }
 
     if (formData.month !== undefined && formData.month !== null && formData.month !== ("" as unknown)) {
       const m = Number(formData.month);
       if (isNaN(m) || m < 1 || m > 12) {
-        setFormError("Month must be between 1 and 12.");
+        setFormError("Tháng phải từ 1 đến 12.");
         return;
       }
     }
@@ -146,7 +168,7 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
     if (formData.year !== undefined && formData.year !== null && formData.year !== ("" as unknown)) {
       const y = Number(formData.year);
       if (isNaN(y) || y < 2020) {
-        setFormError("Year must be 2020 or later.");
+        setFormError("Năm phải từ 2020 trở lên.");
         return;
       }
     }
@@ -154,7 +176,7 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
     if (formData.budget !== undefined) {
       const b = Number(formData.budget);
       if (isNaN(b) || b < 0) {
-        setFormError("Budget must be a non-negative number.");
+        setFormError("Ngân sách phải là số lớn hơn hoặc bằng 0.");
         return;
       }
     }
@@ -207,20 +229,20 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Campaigns
+            Quản lý Chiến dịch
           </h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Manage monthly marketing campaigns, budgets, and schedules.
+            Quản lý chiến dịch marketing định kỳ, ngân sách và lịch trình.
           </p>
         </div>
         <button
           onClick={handleOpenAdd}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-white dark:text-zinc-900 font-medium text-sm transition-all shadow-sm active:scale-[0.98]"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-white dark:text-zinc-900 font-medium text-sm transition-all shadow-sm active:scale-[0.98] cursor-pointer"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          Add Campaign
+          Thêm chiến dịch mới
         </button>
       </div>
 
@@ -230,7 +252,7 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
           <span>{actionError}</span>
           <button
             onClick={() => setActionError(null)}
-            className="text-red-700 dark:text-red-400 hover:opacity-75 font-semibold ml-2"
+            className="text-red-700 dark:text-red-400 hover:opacity-75 font-semibold ml-2 cursor-pointer"
           >
             ✕
           </button>
@@ -241,7 +263,7 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
           <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            Total Campaigns
+            Tổng chiến dịch
           </span>
           <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mt-1">
             {metrics.total}
@@ -249,7 +271,7 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
         </div>
         <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
           <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-            Active Now
+            Đang chạy
           </span>
           <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mt-1">
             {metrics.active}
@@ -257,7 +279,7 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
         </div>
         <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
           <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
-            Total Budget
+            Tổng ngân sách
           </span>
           <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mt-1">
             {metrics.totalBudget.toLocaleString("vi-VN")} ₫
@@ -265,7 +287,7 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
         </div>
         <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
           <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            Completed
+            Đã hoàn thành
           </span>
           <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mt-1">
             {metrics.completed}
@@ -291,7 +313,7 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
           </svg>
           <input
             type="text"
-            placeholder="Search campaigns by name, period..."
+            placeholder="Tìm kiếm theo tên chiến dịch, kỳ chạy, ghi chú..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-zinc-50 dark:bg-zinc-800/50 border border-transparent focus:border-zinc-300 dark:focus:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none transition-all"
@@ -304,13 +326,13 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`px-3 py-1.5 rounded-lg capitalize transition-all whitespace-nowrap ${
+              className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap cursor-pointer ${
                 statusFilter === status
                   ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-xs font-semibold"
                   : "hover:text-zinc-900 dark:hover:text-zinc-200"
               }`}
             >
-              {status}
+              {STATUS_FILTER_LABELS[status]}
             </button>
           ))}
         </div>
@@ -331,19 +353,19 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
               </svg>
             </div>
             <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-              No campaigns found
+              Không tìm thấy chiến dịch nào
             </h3>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1 max-w-sm mx-auto">
               {campaigns.length === 0
-                ? "Get started by adding your first marketing campaign to manage budgets and timeline."
-                : "No campaigns match your search or filter criteria."}
+                ? "Bắt đầu bằng việc tạo chiến dịch marketing đầu tiên để quản lý ngân sách và lịch trình."
+                : "Không có chiến dịch nào khớp với tiêu chí tìm kiếm hoặc bộ lọc."}
             </p>
             {campaigns.length === 0 && (
               <button
                 onClick={handleOpenAdd}
-                className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-sm font-medium hover:opacity-90 transition-all"
+                className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-sm font-medium hover:opacity-90 transition-all cursor-pointer"
               >
-                Add Your First Campaign
+                Tạo chiến dịch đầu tiên
               </button>
             )}
           </div>
@@ -352,11 +374,11 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
             <table className="w-full text-left text-sm">
               <thead className="bg-zinc-50/75 dark:bg-zinc-800/40 border-b border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 text-xs font-semibold uppercase tracking-wider">
                 <tr>
-                  <th className="py-3.5 px-4">Campaign Name</th>
-                  <th className="py-3.5 px-4">Period / Dates</th>
-                  <th className="py-3.5 px-4">Budget</th>
-                  <th className="py-3.5 px-4">Status</th>
-                  <th className="py-3.5 px-4 text-right">Actions</th>
+                  <th className="py-3.5 px-4">Tên chiến dịch</th>
+                  <th className="py-3.5 px-4">Kỳ chạy / Thời gian</th>
+                  <th className="py-3.5 px-4">Ngân sách</th>
+                  <th className="py-3.5 px-4">Trạng thái</th>
+                  <th className="py-3.5 px-4 text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -380,7 +402,7 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
                       <td className="py-4 px-4 whitespace-nowrap">
                         <div className="text-zinc-900 dark:text-zinc-100 font-medium">
                           {camp.month && camp.year
-                            ? `T${camp.month} / ${camp.year}`
+                            ? `Tháng ${camp.month} / ${camp.year}`
                             : camp.year
                             ? `${camp.year}`
                             : "—"}
@@ -406,8 +428,8 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
                         <div className="inline-flex items-center gap-1 justify-end">
                           <button
                             onClick={() => handleOpenEdit(camp)}
-                            className="p-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-zinc-800 transition-colors"
-                            title="Edit campaign"
+                            className="p-1.5 rounded-lg text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                            title="Chỉnh sửa chiến dịch"
                           >
                             <svg
                               className="w-4 h-4"
@@ -425,8 +447,8 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
                           </button>
                           <button
                             onClick={() => setConfirmDeleteCampaign(camp)}
-                            className="p-1.5 rounded-lg text-zinc-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                            title="Delete campaign"
+                            className="p-1.5 rounded-lg text-zinc-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                            title="Xóa chiến dịch"
                           >
                             <svg
                               className="w-4 h-4"
@@ -455,22 +477,28 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
 
       {/* Add / Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden">
+        <div
+          onClick={() => setIsModalOpen(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden cursor-default"
+          >
             <div className="p-6 border-b border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-                  {editingCampaign ? "Edit Campaign" : "New Campaign"}
+                  {editingCampaign ? "Chỉnh sửa chiến dịch" : "Thêm chiến dịch mới"}
                 </h3>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                   {editingCampaign
-                    ? "Update campaign details and budget"
-                    : "Create a new campaign period for tracking bookings"}
+                    ? "Cập nhật thông tin chiến dịch và ngân sách"
+                    : "Tạo kỳ chiến dịch mới để theo dõi booking và ngân sách"}
                 </p>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 rounded-xl text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                className="p-1.5 rounded-xl text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
               >
                 ✕
               </button>
@@ -486,12 +514,12 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
               {/* Campaign Name */}
               <div>
                 <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
-                  Campaign Name <span className="text-red-500">*</span>
+                  Tên chiến dịch <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Mega Sale 9.9 Autumn"
+                  placeholder="Ví dụ: Mega Sale 9.9 Thu Đông"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/40 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100"
@@ -502,7 +530,7 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
-                    Month (1 - 12)
+                    Tháng (1 - 12)
                   </label>
                   <input
                     type="number"
@@ -521,7 +549,7 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
-                    Year (≥ 2020)
+                    Năm (≥ 2020)
                   </label>
                   <input
                     type="number"
@@ -543,7 +571,7 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
-                    Budget (VND)
+                    Ngân sách (VNĐ)
                   </label>
                   <input
                     type="number"
@@ -562,23 +590,23 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
-                    Status
+                    Trạng thái
                   </label>
-                  <select
+                  <CustomSelect
                     value={formData.status}
-                    onChange={(e) =>
+                    onChange={(val) =>
                       setFormData({
                         ...formData,
-                        status: e.target.value as CampaignStatus,
+                        status: val as CampaignStatus,
                       })
                     }
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/40 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100"
-                  >
-                    <option value="planning">Planning</option>
-                    <option value="active">Active</option>
-                    <option value="paused">Paused</option>
-                    <option value="completed">Completed</option>
-                  </select>
+                    options={[
+                      { value: "planning", label: "Lập kế hoạch", dot: "bg-amber-500" },
+                      { value: "active", label: "Đang chạy", dot: "bg-emerald-500" },
+                      { value: "paused", label: "Tạm dừng", dot: "bg-zinc-400" },
+                      { value: "completed", label: "Đã hoàn thành", dot: "bg-blue-500" },
+                    ]}
+                  />
                 </div>
               </div>
 
@@ -586,24 +614,20 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
-                    Start Date
+                    Ngày bắt đầu
                   </label>
-                  <input
-                    type="date"
+                  <DatePicker
                     value={formData.start_date || ""}
-                    onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/40 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100"
+                    onChange={(val) => setFormData({ ...formData, start_date: val })}
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
-                    End Date
+                    Ngày kết thúc
                   </label>
-                  <input
-                    type="date"
+                  <DatePicker
                     value={formData.end_date || ""}
-                    onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/40 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100"
+                    onChange={(val) => setFormData({ ...formData, end_date: val })}
                   />
                 </div>
               </div>
@@ -611,11 +635,11 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
               {/* Notes */}
               <div>
                 <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
-                  Notes
+                  Ghi chú nội bộ
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="Goals, target KPIs, special requirements..."
+                  placeholder="Mục tiêu chiến dịch, chỉ số KPI kỳ vọng, yêu cầu đặc biệt..."
                   value={formData.notes || ""}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/40 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100 resize-none"
@@ -627,16 +651,16 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-sm font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+                  className="px-4 py-2 rounded-xl text-sm font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-200 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="px-5 py-2 rounded-xl text-sm font-medium bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-white dark:text-zinc-900 disabled:opacity-50 transition-all shadow-sm"
+                  className="px-5 py-2 rounded-xl text-sm font-medium bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-white dark:text-zinc-900 disabled:opacity-50 transition-all shadow-sm cursor-pointer"
                 >
-                  {isPending ? "Saving..." : editingCampaign ? "Save Changes" : "Create Campaign"}
+                  {isPending ? "Đang lưu..." : editingCampaign ? "Lưu thay đổi" : "Tạo chiến dịch"}
                 </button>
               </div>
             </form>
@@ -646,8 +670,14 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
 
       {/* Delete Confirmation Dialog */}
       {confirmDeleteCampaign && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
+        <div
+          onClick={() => setConfirmDeleteCampaign(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4 cursor-default"
+          >
             <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -660,31 +690,31 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
             </div>
             <div className="text-center">
               <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-50">
-                Delete Campaign?
+                Xác nhận xóa chiến dịch?
               </h3>
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                Are you sure you want to delete{" "}
+                Bạn có chắc chắn muốn xóa chiến dịch{" "}
                 <span className="font-semibold text-zinc-800 dark:text-zinc-200">
                   {confirmDeleteCampaign.name}
                 </span>
-                ? This action cannot be undone.
+                ? Thao tác này không thể hoàn tác.
               </p>
             </div>
             <div className="flex items-center justify-center gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => setConfirmDeleteCampaign(null)}
-                className="flex-1 px-4 py-2 rounded-xl text-sm font-medium border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                className="flex-1 px-4 py-2 rounded-xl text-sm font-medium border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
               >
-                Cancel
+                Hủy
               </button>
               <button
                 type="button"
                 onClick={handleDeleteConfirm}
                 disabled={deletingId !== null}
-                className="flex-1 px-4 py-2 rounded-xl text-sm font-medium bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 transition-colors shadow-sm"
+                className="flex-1 px-4 py-2 rounded-xl text-sm font-medium bg-red-600 hover:bg-red-700 text-white disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
               >
-                {deletingId ? "Deleting..." : "Delete"}
+                {deletingId ? "Đang xóa..." : "Xóa chiến dịch"}
               </button>
             </div>
           </div>

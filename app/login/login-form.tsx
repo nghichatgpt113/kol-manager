@@ -24,18 +24,18 @@ export default function LoginForm() {
     // Client-side validation
     const trimmedEmail = email.trim();
     if (!trimmedEmail) {
-      setErrorMessage("Please enter your email address.");
+      setErrorMessage("Vui lòng nhập địa chỉ email.");
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(trimmedEmail)) {
-      setErrorMessage("Please enter a valid email address.");
+      setErrorMessage("Vui lòng nhập địa chỉ email hợp lệ.");
       return;
     }
 
     if (!password) {
-      setErrorMessage("Please enter your password.");
+      setErrorMessage("Vui lòng nhập mật khẩu.");
       return;
     }
 
@@ -57,15 +57,15 @@ export default function LoginForm() {
           lowerMsg.includes("user not found")
         ) {
           setErrorMessage(
-            "Invalid email or password. Please verify your credentials and try again."
+            "Email hoặc mật khẩu không chính xác. Vui lòng kiểm tra lại."
           );
         } else if (lowerMsg.includes("email not confirmed")) {
           setErrorMessage(
-            "Your email address is not verified yet. Please check your inbox for confirmation."
+            "Email chưa được xác thực. Vui lòng kiểm tra hòm thư xác nhận."
           );
         } else {
           setErrorMessage(
-            "Unable to sign in. Please check your credentials or try again later."
+            "Không thể đăng nhập. Vui lòng kiểm tra thông tin hoặc thử lại sau."
           );
         }
         setIsLoading(false);
@@ -79,7 +79,7 @@ export default function LoginForm() {
         setIsLoading(false);
       }
     } catch {
-      setErrorMessage("An unexpected error occurred. Please try again later.");
+      setErrorMessage("Đã xảy ra lỗi không mong muốn. Vui lòng thử lại sau.");
       setIsLoading(false);
     }
   };
@@ -111,7 +111,7 @@ export default function LoginForm() {
             KOL Manager
           </h1>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Sign in to manage campaigns, bookings, and creators
+            Đăng nhập để quản lý chiến dịch, booking và nhà sáng tạo
           </p>
         </div>
 
@@ -146,7 +146,7 @@ export default function LoginForm() {
                 htmlFor="email"
                 className="block text-sm font-medium text-zinc-900 dark:text-zinc-200 mb-1.5"
               >
-                Email address
+                Địa chỉ Email
               </label>
               <input
                 id="email"
@@ -157,7 +157,7 @@ export default function LoginForm() {
                 disabled={isLoading}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@company.com"
+                placeholder="ten@congty.com"
                 className="block w-full rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800/60 px-3.5 py-2.5 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 shadow-xs focus:border-zinc-900 dark:focus:border-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/20 text-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
@@ -167,7 +167,7 @@ export default function LoginForm() {
                 htmlFor="password"
                 className="block text-sm font-medium text-zinc-900 dark:text-zinc-200 mb-1.5"
               >
-                Password
+                Mật khẩu
               </label>
               <div className="relative">
                 <input
@@ -187,7 +187,7 @@ export default function LoginForm() {
                   onClick={() => setShowPassword((prev) => !prev)}
                   disabled={isLoading}
                   className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300 focus:outline-none cursor-pointer"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
                 >
                   {showPassword ? (
                     <svg
@@ -257,10 +257,10 @@ export default function LoginForm() {
                       d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
                     />
                   </svg>
-                  <span>Signing in...</span>
+                  <span>Đang đăng nhập...</span>
                 </>
               ) : (
-                <span>Sign in</span>
+                <span>Đăng nhập</span>
               )}
             </button>
           </form>

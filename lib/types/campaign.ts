@@ -26,4 +26,4 @@ export interface CreateCampaignInput {
   notes?: string | null;
 }
 
-export interface UpdateCampaignInput extends Partial<CreateCampaignInput> {}
+export type UpdateCampaignInput = Partial<CreateCampaignInput>;

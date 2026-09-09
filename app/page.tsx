@@ -1,15 +1,5 @@
-import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
-export default async function Page() {
-  const supabase = await createClient();
-
-  const { data: todos } = await supabase.from("todos").select();
-
-  return (
-    <ul>
-      {todos?.map((todo: { id: string | number; name?: string }) => (
-        <li key={todo.id}>{todo.name}</li>
-      ))}
-    </ul>
-  );
+export default function RootPage() {
+  redirect("/dashboard");
 }

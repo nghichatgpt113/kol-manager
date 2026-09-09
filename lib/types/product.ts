@@ -30,4 +30,4 @@ export interface CreateProductInput {
   is_active?: boolean;
 }
 
-export interface UpdateProductInput extends Partial<CreateProductInput> {}
+export type UpdateProductInput = Partial<CreateProductInput>;
