@@ -35,6 +35,9 @@ const BOOKING_SELECT_QUERY = `
   ),
   campaign:campaigns (
     id, user_id, name, month, year, budget, status
+  ),
+  videos:videos (
+    id, booking_id, video_url, video_id, title, air_url, ads_code, ads_code_expires_at, posted_at, views_count, likes_count, comments_count
   )
 `;
 

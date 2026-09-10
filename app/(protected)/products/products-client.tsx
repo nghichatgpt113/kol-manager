@@ -3,6 +3,7 @@
 import { useState, useEffect, useTransition, useMemo } from "react";
 import type { Product, CreateProductInput } from "@/lib/types/product";
 import { createProduct, updateProduct, deleteProduct } from "@/lib/services/products";
+import FloatingActionBar from "@/components/ui/floating-action-bar";
 
 interface ProductsClientProps {
   initialProducts: Product[];
@@ -197,29 +198,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
   };
 
   return (
-    <div className="space-y-6">
-      {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Danh mục Sản phẩm
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            Quản lý danh mục sản phẩm tiếp thị, giá vốn hàng mẫu và tỷ lệ hoa hồng/ngân sách quảng cáo mặc định.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={openCreateModal}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 text-white dark:bg-zinc-50 dark:text-zinc-900 text-sm font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition shadow-xs cursor-pointer"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Thêm sản phẩm mới
-        </button>
-      </div>
+    <div className="space-y-4 pb-24">
 
       {actionError && (
         <div className="p-4 rounded-xl bg-red-50 text-red-800 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-900 text-sm flex items-center justify-between">
@@ -644,6 +623,19 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
           </div>
         </div>
       )}
+      {/* FLOATING ACTION BAR */}
+      <FloatingActionBar
+        primaryAction={{
+          label: "Thêm sản phẩm",
+          onClick: openCreateModal,
+          shortcut: "n",
+        }}
+        badge={
+          <span className="text-zinc-400">
+            {filteredProducts.length} sản phẩm
+          </span>
+        }
+      />
     </div>
   );
 }

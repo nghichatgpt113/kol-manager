@@ -7,6 +7,8 @@ import CustomSelect from "@/components/ui/custom-select";
 import ComboboxInput from "@/components/ui/combobox-input";
 import PlatformIcon from "@/components/icons/platform-icon";
 import NicheBadge from "@/components/kols/niche-badge";
+import FloatingActionBar from "@/components/ui/floating-action-bar";
+import CopyButton from "@/components/ui/copy-button";
 
 interface KolsClientProps {
   initialKols: Kol[];
@@ -228,29 +230,7 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Danh bạ KOL / KOC
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            Quản lý hồ sơ nhà sáng tạo, kênh mạng xã hội, thông tin liên hệ và số lượng người theo dõi.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={openCreateModal}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 text-white dark:bg-zinc-50 dark:text-zinc-900 text-sm font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition shadow-xs cursor-pointer"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Thêm KOL mới
-        </button>
-      </div>
+    <div className="space-y-4 pb-24">
 
       {actionError && (
         <div className="p-4 rounded-xl bg-red-50 text-red-800 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-900 text-sm flex items-center justify-between">
@@ -385,7 +365,21 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                             </a>
                           )}
                         </div>
-                        <div className="text-xs text-zinc-500 font-mono">@{kol.username}</div>
+                        <div className="text-xs text-zinc-500 font-mono flex items-center gap-1 mt-0.5">
+                          <span>@{kol.username}</span>
+                          <CopyButton
+                            text={kol.username}
+                            title={`Sao chép @${kol.username}`}
+                            size="xs"
+                          />
+                          {kol.channel_url && (
+                            <CopyButton
+                              text={kol.channel_url}
+                              title="Sao chép liên kết kênh"
+                              size="xs"
+                            />
+                          )}
+                        </div>
                       </div>
                     </td>
 
@@ -694,6 +688,19 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
           </div>
         </div>
       )}
+      {/* FLOATING ACTION BAR */}
+      <FloatingActionBar
+        primaryAction={{
+          label: "Thêm KOL mới",
+          onClick: openCreateModal,
+          shortcut: "n",
+        }}
+        badge={
+          <span className="text-zinc-400">
+            {filteredKols.length} nhà sáng tạo
+          </span>
+        }
+      />
     </div>
   );
 }

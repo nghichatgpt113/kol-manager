@@ -16,6 +16,7 @@ import {
   deleteTask,
 } from "@/lib/services/tasks";
 import CustomSelect, { type SelectOption } from "@/components/ui/custom-select";
+import FloatingActionBar from "@/components/ui/floating-action-bar";
 
 interface TasksClientProps {
   initialTasks: Task[];
@@ -444,29 +445,6 @@ export default function TasksClient({
           <span>{toast.message}</span>
         </div>
       )}
-
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-6">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Công việc
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            Theo dõi các công việc và deadline cần xử lý
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={handleOpenCreate}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-4 py-2.5 text-sm font-semibold shadow-xs hover:bg-zinc-800 dark:hover:bg-zinc-200 transition cursor-pointer"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M12 4v16m8-8H4" />
-          </svg>
-          <span>Tạo công việc</span>
-        </button>
-      </div>
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1058,6 +1036,19 @@ export default function TasksClient({
           </div>
         </div>
       )}
+      {/* FLOATING ACTION BAR */}
+      <FloatingActionBar
+        primaryAction={{
+          label: "Tạo công việc",
+          onClick: handleOpenCreate,
+          shortcut: "n",
+        }}
+        badge={
+          <span className="text-zinc-400">
+            {filteredTasks.length} công việc
+          </span>
+        }
+      />
     </div>
   );
 }

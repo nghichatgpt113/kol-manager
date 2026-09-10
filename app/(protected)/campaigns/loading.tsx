@@ -8,27 +8,7 @@ const STATUS_FILTER_LABELS = [
 
 export default function CampaignsLoading() {
   return (
-    <div className="space-y-6">
-      {/* Header - Static */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Quản lý Chiến dịch
-          </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Quản lý chiến dịch marketing định kỳ, ngân sách và lịch trình.
-          </p>
-        </div>
-        <button
-          type="button"
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-white dark:text-zinc-900 font-medium text-sm transition-all shadow-sm active:scale-[0.98] cursor-pointer"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Thêm chiến dịch mới
-        </button>
-      </div>
+    <div className="space-y-4 pb-24">
 
       {/* Metric Cards - Static Labels with pulse only for values */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

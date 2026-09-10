@@ -12,28 +12,7 @@ const PLATFORM_TABS: { label: string; platform?: string }[] = [
 
 export default function KolsLoading() {
   return (
-    <div className="space-y-6">
-      {/* Header - Static */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Danh bạ KOL / KOC
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            Quản lý hồ sơ nhà sáng tạo, kênh mạng xã hội, thông tin liên hệ và số lượng người theo dõi.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 text-white dark:bg-zinc-50 dark:text-zinc-900 text-sm font-semibold hover:bg-zinc-800 dark:hover:bg-zinc-200 transition shadow-xs cursor-pointer"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Thêm KOL mới
-        </button>
-      </div>
+    <div className="space-y-4 pb-24">
 
       {/* Filter & Search Bar - Static Shell */}
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xs">

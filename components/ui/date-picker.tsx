@@ -10,6 +10,7 @@ interface DatePickerProps {
   className?: string;
   id?: string;
   name?: string;
+  size?: "xs" | "sm" | "md";
 }
 
 const VI_WEEKDAYS = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
@@ -48,6 +49,7 @@ export default function DatePicker({
   className = "",
   id,
   name,
+  size = "md",
 }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -250,6 +252,12 @@ export default function DatePicker({
     )}`;
   }, []);
 
+  const sizeClasses = {
+    xs: "px-2 py-1 text-xs rounded-lg gap-1.5",
+    sm: "px-2.5 py-1.5 text-xs rounded-xl gap-2",
+    md: "px-3.5 py-2 text-sm rounded-xl gap-2",
+  }[size];
+
   return (
     <div ref={containerRef} className={`relative ${className}`}>
       {/* Hidden input for form submitting */}
@@ -260,12 +268,12 @@ export default function DatePicker({
         type="button"
         disabled={disabled}
         onClick={handleToggle}
-        className={`w-full flex items-center justify-between gap-2 px-3.5 py-2 rounded-xl text-sm transition-all text-left cursor-pointer border shadow-2xs ${
+        className={`w-full flex items-center justify-between transition-all text-left cursor-pointer border shadow-2xs ${sizeClasses} ${
           disabled
             ? "opacity-50 cursor-not-allowed bg-zinc-100 dark:bg-zinc-800/40 border-zinc-200 dark:border-zinc-800"
             : isOpen
-            ? "border-zinc-900 dark:border-zinc-500 ring-2 ring-zinc-900/10 dark:ring-zinc-400/20 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
-            : "bg-zinc-50 dark:bg-zinc-800 hover:bg-zinc-100/80 dark:hover:bg-zinc-700/60 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100"
+            ? "border-indigo-600 dark:border-indigo-500 ring-2 ring-indigo-500/15 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100"
+            : "bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100"
         }`}
       >
         <span
