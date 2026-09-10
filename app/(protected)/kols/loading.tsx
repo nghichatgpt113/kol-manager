@@ -60,9 +60,9 @@ export default function KolsLoading() {
             <span
               key={item.label}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap cursor-default ${
-                idx === 0
-                  ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-2xs"
-                  : "text-zinc-600 dark:text-zinc-400"
+                  idx === 0
+                    ? "bg-indigo-50 text-indigo-700 border border-indigo-200/90 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800/80 shadow-2xs"
+                    : "text-zinc-600 dark:text-zinc-400 border border-transparent"
               }`}
             >
               {item.platform && <PlatformIcon platform={item.platform} size="xs" />}

@@ -14,10 +14,12 @@ interface NavbarProps {
 
 const NAV_ITEMS = [
   { label: "Tổng quan", href: "/dashboard" },
-  { label: "Booking", href: "/bookings" },
   { label: "KOLs", href: "/kols" },
   { label: "Sản phẩm", href: "/products" },
   { label: "Chiến dịch", href: "/campaigns" },
+  { label: "Hợp tác", href: "/bookings" },
+  { label: "Công việc", href: "/tasks" },
+  { label: "Văn mẫu", href: "/templates" },
 ];
 
 export default function Navbar({ user, profile }: NavbarProps) {

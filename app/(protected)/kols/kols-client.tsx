@@ -4,7 +4,9 @@ import { useState, useEffect, useTransition, useMemo } from "react";
 import type { Kol, CreateKolInput, KolPlatform } from "@/lib/types/kol";
 import { createKol, updateKol, deleteKol } from "@/lib/services/kols";
 import CustomSelect from "@/components/ui/custom-select";
+import ComboboxInput from "@/components/ui/combobox-input";
 import PlatformIcon from "@/components/icons/platform-icon";
+import NicheBadge from "@/components/kols/niche-badge";
 
 interface KolsClientProps {
   initialKols: Kol[];
@@ -207,6 +209,24 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
     }
   };
 
+  const getActiveTabStyle = (platform: string) => {
+    switch (platform) {
+      case "facebook":
+        return "bg-blue-50 text-blue-700 border-blue-200/90 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/80 ring-1 ring-blue-500/20";
+      case "instagram":
+        return "bg-pink-50 text-pink-700 border-pink-200/90 dark:bg-pink-950/60 dark:text-pink-300 dark:border-pink-800/80 ring-1 ring-pink-500/20";
+      case "youtube":
+        return "bg-red-50 text-red-700 border-red-200/90 dark:bg-red-950/60 dark:text-red-300 dark:border-red-800/80 ring-1 ring-red-500/20";
+      case "shopee":
+        return "bg-orange-50 text-orange-700 border-orange-200/90 dark:bg-orange-950/60 dark:text-orange-300 dark:border-orange-800/80 ring-1 ring-orange-500/20";
+      case "tiktok":
+        return "bg-zinc-100 text-zinc-900 border-zinc-300/90 dark:bg-zinc-800 dark:text-zinc-100 dark:border-zinc-700 ring-1 ring-zinc-400/25";
+      case "all":
+      default:
+        return "bg-indigo-50 text-indigo-700 border-indigo-200/90 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800/80 ring-1 ring-indigo-500/20";
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Top Banner */}
@@ -271,30 +291,33 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
           <button
             type="button"
             onClick={() => setSelectedPlatform("all")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer whitespace-nowrap ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer whitespace-nowrap border shadow-2xs ${
               selectedPlatform === "all"
-                ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-2xs"
-                : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                ? getActiveTabStyle("all")
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-transparent shadow-none"
             }`}
           >
             Tất cả ({kols.length})
           </button>
           {PLATFORMS.map((p) => {
             const count = kols.filter((k) => k.platform === p.value).length;
+            const isSelected = selectedPlatform === p.value;
             return (
               <button
                 key={p.value}
                 type="button"
                 onClick={() => setSelectedPlatform(p.value)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer whitespace-nowrap ${
-                  selectedPlatform === p.value
-                    ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-2xs"
-                    : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer whitespace-nowrap border shadow-2xs ${
+                  isSelected
+                    ? getActiveTabStyle(p.value)
+                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-transparent shadow-none"
                 }`}
               >
                 <PlatformIcon platform={p.value} size="xs" />
                 <span>{p.label}</span>
-                <span className="text-[11px] opacity-70">({count})</span>
+                <span className={`text-[11px] ${isSelected ? "font-bold opacity-80" : "opacity-60"}`}>
+                  ({count})
+                </span>
               </button>
             );
           })}
@@ -384,13 +407,7 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                     </td>
 
                     <td className="px-6 py-4">
-                      {kol.niche ? (
-                        <span className="inline-block px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-medium">
-                          {kol.niche}
-                        </span>
-                      ) : (
-                        <span className="text-zinc-400 text-xs">—</span>
-                      )}
+                      <NicheBadge niche={kol.niche} />
                     </td>
 
                     <td className="px-6 py-4 text-xs text-zinc-600 dark:text-zinc-400 space-y-0.5">
@@ -542,12 +559,10 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                   <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
                     Ngành hàng / Lĩnh vực
                   </label>
-                  <input
-                    type="text"
+                  <ComboboxInput
                     value={formData.niche || ""}
-                    onChange={(e) => setFormData({ ...formData, niche: e.target.value })}
-                    placeholder="Làm đẹp, Thời trang, Ẩm thực..."
-                    className="w-full px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm"
+                    onChange={(val) => setFormData({ ...formData, niche: val })}
+                    placeholder="Chọn ngành hàng hoặc tự gõ..."
                   />
                 </div>
               </div>

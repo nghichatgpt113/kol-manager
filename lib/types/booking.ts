@@ -1,6 +1,7 @@
 import type { Kol } from "./kol";
 import type { Product } from "./product";
 import type { Campaign } from "./campaign";
+import type { Video } from "./video";
 
 export type BookingStatus =
   | "contacted"
@@ -68,6 +69,7 @@ export interface Booking {
   kol?: Kol;
   product?: Product | null;
   campaign?: Campaign | null;
+  videos?: Video[];
 }
 
 export interface CreateBookingInput {

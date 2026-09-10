@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "import:excel": "node --experimental-websocket scripts/import-excel-data.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
