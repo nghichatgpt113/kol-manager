@@ -1,16 +1,20 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import type { BookingStatus } from "@/lib/types/booking";
 import { formatDate } from "../types";
 import DatePicker from "@/components/ui/date-picker";
 
 interface InlineDateCellProps {
   bookingId: string;
   expectedPostAt?: string | null;
+  status?: BookingStatus;
   onUpdate: (expectedPostAt: string | null) => Promise<void> | void;
 }
 
-function getDeadlineInfo(dateStr?: string | null) {
+const RESOLVED_STATUSES: BookingStatus[] = ["posted", "completed", "cancelled"];
+
+function getDeadlineInfo(dateStr?: string | null, status?: BookingStatus) {
   if (!dateStr) {
     return {
       label: null,
@@ -19,11 +23,27 @@ function getDeadlineInfo(dateStr?: string | null) {
       className: "text-zinc-400 dark:text-zinc-500",
     };
   }
+  if (status && RESOLVED_STATUSES.includes(status)) {
+    return {
+      label: null,
+      isOverdue: false,
+      isUrgent: false,
+      className: "text-zinc-600 dark:text-zinc-400",
+    };
+  }
+  const [y, m, d] = dateStr.split("T")[0].split("-").map(Number);
+  if (!y || !m || !d) {
+    return {
+      label: null,
+      isOverdue: false,
+      isUrgent: false,
+      className: "text-zinc-700 dark:text-zinc-300",
+    };
+  }
   const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  const target = new Date(dateStr);
-  target.setHours(0, 0, 0, 0);
-  const diffDays = Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const target = new Date(y, m - 1, d);
+  const diffDays = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
   if (diffDays < 0) {
     return {
@@ -33,8 +53,8 @@ function getDeadlineInfo(dateStr?: string | null) {
       className: "text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900/60 font-semibold",
     };
   }
-  if (diffDays <= 2) {
-    const label = diffDays === 0 ? "Hôm nay" : diffDays === 1 ? "Ngày mai" : "Còn 2 ngày";
+  if (diffDays <= 3) {
+    const label = diffDays === 0 ? "Hôm nay" : diffDays === 1 ? "Ngày mai" : `Còn ${diffDays} ngày`;
     return {
       label,
       isOverdue: false,
@@ -61,16 +81,13 @@ function addDaysToToday(days: number): string {
 
 export default function InlineDateCell({
   expectedPostAt,
+  status,
   onUpdate,
 }: InlineDateCellProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [tempDate, setTempDate] = useState(expectedPostAt ? expectedPostAt.slice(0, 10) : "");
   const [isUpdating, setIsUpdating] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setTempDate(expectedPostAt ? expectedPostAt.slice(0, 10) : "");
-  }, [expectedPostAt]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -97,7 +114,7 @@ export default function InlineDateCell({
     }
   };
 
-  const deadline = getDeadlineInfo(expectedPostAt);
+  const deadline = getDeadlineInfo(expectedPostAt, status);
 
   return (
     <div
@@ -110,6 +127,9 @@ export default function InlineDateCell({
         disabled={isUpdating}
         onClick={(e) => {
           e.stopPropagation();
+          if (!isOpen) {
+            setTempDate(expectedPostAt ? expectedPostAt.slice(0, 10) : "");
+          }
           setIsOpen(!isOpen);
         }}
         title="Nhấp để đổi ngày hẹn lên bài"

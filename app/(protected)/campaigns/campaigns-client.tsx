@@ -225,7 +225,7 @@ export default function CampaignsClient({ initialCampaigns }: CampaignsClientPro
   };
 
   return (
-    <div className="space-y-4 pb-24">
+    <div className="space-y-4 px-3 sm:px-5 py-3 pb-24">
 
       {/* Global Action Error */}
       {actionError && (

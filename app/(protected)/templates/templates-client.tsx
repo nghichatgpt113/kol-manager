@@ -17,6 +17,7 @@ import {
   deleteTemplate,
 } from "@/lib/services/templates";
 import CustomSelect, { type SelectOption } from "@/components/ui/custom-select";
+import FloatingActionBar from "@/components/ui/floating-action-bar";
 
 interface TemplatesClientProps {
   initialTemplates: Template[];
@@ -326,7 +327,7 @@ export default function TemplatesClient({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-3 sm:px-5 py-3 pb-24">
       {/* Toast notification */}
       {toastMessage && (
         <div
@@ -368,46 +369,6 @@ export default function TemplatesClient({
           <span>{toastMessage.text}</span>
         </div>
       )}
-
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Văn mẫu
-          </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Quản lý các nội dung mẫu thường dùng khi làm việc với KOL
-          </p>
-        </div>
-        <button
-          onClick={() => {
-            setCreateForm({
-              title: "",
-              category: "invitation",
-              content: "",
-              variables_description: "",
-            });
-            setCreateError(null);
-            setIsCreateOpen(true);
-          }}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-sm font-semibold shadow-sm shadow-indigo-500/20 transition-all cursor-pointer"
-        >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-          + Tạo văn mẫu
-        </button>
-      </div>
 
       {/* Filter and Search Bar */}
       <div className="space-y-3">
@@ -1174,6 +1135,29 @@ export default function TemplatesClient({
           </div>
         </div>
       )}
+
+      {/* FLOATING ACTION BAR */}
+      <FloatingActionBar
+        primaryAction={{
+          label: "Tạo văn mẫu",
+          onClick: () => {
+            setCreateForm({
+              title: "",
+              category: "invitation",
+              content: "",
+              variables_description: "",
+            });
+            setCreateError(null);
+            setIsCreateOpen(true);
+          },
+          shortcut: "n",
+        }}
+        badge={
+          <span className="text-zinc-400">
+            {filteredTemplates.length} văn mẫu
+          </span>
+        }
+      />
     </div>
   );
 }

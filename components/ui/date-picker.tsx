@@ -253,9 +253,9 @@ export default function DatePicker({
   }, []);
 
   const sizeClasses = {
-    xs: "px-2 py-1 text-xs rounded-lg gap-1.5",
-    sm: "px-2.5 py-1.5 text-xs rounded-xl gap-2",
-    md: "px-3.5 py-2 text-sm rounded-xl gap-2",
+    xs: "h-7 px-2 text-xs rounded-lg gap-1.5",
+    sm: "h-8 px-2.5 text-xs rounded-lg gap-2",
+    md: "h-10 px-3.5 text-sm rounded-xl gap-2",
   }[size];
 
   return (
@@ -334,10 +334,10 @@ export default function DatePicker({
 
       {/* Floating Popover Calendar */}
       {isOpen && (
-        <div className="absolute z-50 top-full mt-1.5 left-0 p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl backdrop-blur-md w-72 animate-in fade-in-0 zoom-in-95 duration-150">
+        <div className="absolute z-[100] top-full mt-1.5 left-0 p-3.5 rounded-xl bg-white dark:bg-[#13141b] border border-zinc-200/80 dark:border-white/10 shadow-xl dark:shadow-2xl dark:shadow-black/70 backdrop-blur-xl w-72 animate-in fade-in-0 zoom-in-95 duration-150">
           {/* Calendar Header: Month/Year title & Navigation */}
-          <div className="flex items-center justify-between mb-3 pb-2 border-b border-zinc-100 dark:border-zinc-800">
-            <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+          <div className="flex items-center justify-between mb-3 pb-2 border-b border-zinc-100 dark:border-white/[0.06]">
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">
               {VI_MONTHS[viewMonth]}, {viewYear}
             </span>
 
@@ -345,11 +345,11 @@ export default function DatePicker({
               <button
                 type="button"
                 onClick={handlePrevMonth}
-                className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                className="p-1 rounded-lg text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-white/[0.08] transition-colors cursor-pointer"
                 title="Tháng trước"
               >
                 <svg
-                  className="w-4 h-4"
+                  className="w-3.5 h-3.5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -366,11 +366,11 @@ export default function DatePicker({
               <button
                 type="button"
                 onClick={handleNextMonth}
-                className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                className="p-1 rounded-lg text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-white/[0.08] transition-colors cursor-pointer"
                 title="Tháng sau"
               >
                 <svg
-                  className="w-4 h-4"
+                  className="w-3.5 h-3.5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -387,11 +387,11 @@ export default function DatePicker({
           </div>
 
           {/* Weekday Headers */}
-          <div className="grid grid-cols-7 gap-1 text-center mb-1.5">
+          <div className="grid grid-cols-7 gap-1 text-center mb-1">
             {VI_WEEKDAYS.map((wd) => (
               <span
                 key={wd}
-                className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 py-1"
+                className="text-[10px] font-semibold uppercase text-zinc-400 dark:text-zinc-500 py-0.5"
               >
                 {wd}
               </span>
@@ -409,14 +409,14 @@ export default function DatePicker({
                   key={`${item.isoString}-${idx}`}
                   type="button"
                   onClick={() => handleSelectDay(item.day, item.monthOffset)}
-                  className={`h-8 w-8 mx-auto rounded-xl flex items-center justify-center text-xs transition-all cursor-pointer ${
+                  className={`h-7.5 w-7.5 mx-auto rounded-lg flex items-center justify-center text-xs tabular-nums transition-all cursor-pointer ${
                     isSelected
-                      ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 font-bold shadow-xs"
+                      ? "bg-indigo-600 text-white font-semibold shadow-xs"
                       : isToday
-                      ? "border border-indigo-500 text-indigo-600 dark:text-indigo-400 font-semibold hover:bg-indigo-50 dark:hover:bg-indigo-950/40"
+                      ? "border border-indigo-500/40 text-indigo-600 dark:text-indigo-400 font-semibold hover:bg-indigo-50 dark:hover:bg-indigo-950/40"
                       : item.isCurrentMonth
-                      ? "text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                      : "text-zinc-300 dark:text-zinc-600 hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
+                      ? "text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/[0.08]"
+                      : "text-zinc-300 dark:text-zinc-600 hover:bg-zinc-50 dark:hover:bg-white/[0.04]"
                   }`}
                 >
                   {item.day}
@@ -426,11 +426,11 @@ export default function DatePicker({
           </div>
 
           {/* Footer actions */}
-          <div className="flex items-center justify-between pt-3 mt-2 border-t border-zinc-100 dark:border-zinc-800 text-xs">
+          <div className="flex items-center justify-between pt-2.5 mt-2 border-t border-zinc-100 dark:border-white/[0.06] text-xs">
             <button
               type="button"
               onClick={handleSelectToday}
-              className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer"
+              className="font-semibold text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer text-[11px]"
             >
               Hôm nay
             </button>
@@ -438,7 +438,7 @@ export default function DatePicker({
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 cursor-pointer"
+              className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 cursor-pointer text-[11px]"
             >
               Đóng
             </button>

@@ -19,6 +19,9 @@ export default function BookingDeleteModal({
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Xác nhận xóa Booking"
       onClick={onClose}
       className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
     >

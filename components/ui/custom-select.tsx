@@ -77,11 +77,10 @@ export default function CustomSelect({
   // Focus search input when popover opens
   useEffect(() => {
     if (isOpen && searchable) {
-      setSearch("");
-      setHighlightIndex(0);
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         searchInputRef.current?.focus();
       }, 50);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, searchable]);
 
@@ -142,12 +141,25 @@ export default function CustomSelect({
 
   // Size styling tokens
   const sizeClasses = {
-    xs: "px-2 py-1 text-xs rounded-lg gap-1.5",
-    sm: "px-2.5 py-1.5 text-xs rounded-xl gap-2",
-    md: "px-3.5 py-2 text-sm rounded-xl gap-2.5",
+    xs: "h-7 px-2 text-xs rounded-lg gap-1.5",
+    sm: "h-8 px-2.5 text-xs rounded-lg gap-2",
+    md: "h-10 px-3.5 text-sm rounded-xl gap-2.5",
   }[size];
 
   const chevronSize = size === "xs" ? "w-3 h-3" : size === "sm" ? "w-3.5 h-3.5" : "w-4 h-4";
+
+  const handleToggle = () => {
+    if (disabled) return;
+    if (!isOpen) {
+      if (searchable) {
+        setSearch("");
+        setHighlightIndex(0);
+      }
+      setIsOpen(true);
+    } else {
+      setIsOpen(false);
+    }
+  };
 
   return (
     <div
@@ -162,7 +174,7 @@ export default function CustomSelect({
       <button
         type="button"
         disabled={disabled}
-        onClick={() => !disabled && setIsOpen(!isOpen)}
+        onClick={handleToggle}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         className={`w-full flex items-center justify-between transition-all text-left cursor-pointer border shadow-2xs ${sizeClasses} ${
@@ -218,10 +230,10 @@ export default function CustomSelect({
 
       {/* Dropdown Floating Menu */}
       {isOpen && (
-        <div className="absolute z-50 top-full mt-1.5 left-0 right-0 min-w-[200px] p-1.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl backdrop-blur-md max-h-64 overflow-y-auto animate-in fade-in-0 zoom-in-95 duration-150">
+        <div className="absolute z-[100] top-full mt-1.5 left-0 right-0 min-w-[200px] p-1 rounded-xl bg-white dark:bg-[#13141b] border border-zinc-200/80 dark:border-white/10 shadow-xl dark:shadow-2xl dark:shadow-black/70 backdrop-blur-xl max-h-64 overflow-y-auto animate-in fade-in-0 zoom-in-95 duration-150">
           {/* Optional Search Input */}
           {searchable && (
-            <div className="p-1 mb-1 border-b border-zinc-100 dark:border-zinc-800">
+            <div className="p-1 mb-1 border-b border-zinc-100 dark:border-white/[0.06]">
               <div className="relative flex items-center">
                 <svg
                   className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-zinc-400"

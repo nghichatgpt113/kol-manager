@@ -198,7 +198,7 @@ export default function ProductsClient({ initialProducts }: ProductsClientProps)
   };
 
   return (
-    <div className="space-y-4 pb-24">
+    <div className="space-y-4 px-3 sm:px-5 py-3 pb-24">
 
       {actionError && (
         <div className="p-4 rounded-xl bg-red-50 text-red-800 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-900 text-sm flex items-center justify-between">

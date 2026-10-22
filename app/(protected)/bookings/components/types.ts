@@ -31,7 +31,7 @@ export const AVAILABLE_COLUMNS: ColumnDefinition[] = [
     shortLabel: "Mã BK",
     description: "Mã định danh hợp đồng booking & loại nội dung hợp tác",
     defaultVisible: true,
-    minWidth: "140px",
+    minWidth: "120px",
   },
   {
     id: "kol",
@@ -40,7 +40,7 @@ export const AVAILABLE_COLUMNS: ColumnDefinition[] = [
     description: "Tên hiển thị, kênh, nền tảng và SĐT liên hệ của KOL",
     defaultVisible: true,
     required: true,
-    minWidth: "190px",
+    minWidth: "150px",
   },
   {
     id: "product",
@@ -48,7 +48,7 @@ export const AVAILABLE_COLUMNS: ColumnDefinition[] = [
     shortLabel: "Sản phẩm",
     description: "Sản phẩm mẫu và chiến dịch tháng tương ứng",
     defaultVisible: true,
-    minWidth: "190px",
+    minWidth: "160px",
   },
   {
     id: "status",
@@ -57,7 +57,7 @@ export const AVAILABLE_COLUMNS: ColumnDefinition[] = [
     description: "Tiến độ hợp tác (8 bước: liên hệ, chốt, mẫu, duyệt, đăng, xong)",
     defaultVisible: true,
     required: true,
-    minWidth: "160px",
+    minWidth: "125px",
   },
   {
     id: "logistics",
@@ -65,7 +65,7 @@ export const AVAILABLE_COLUMNS: ColumnDefinition[] = [
     shortLabel: "Vận đơn",
     description: "Hãng bưu cục, mã vận đơn và link tra cứu đơn hàng trực tiếp",
     defaultVisible: true,
-    minWidth: "180px",
+    minWidth: "135px",
   },
   {
     id: "deadline",
@@ -73,7 +73,7 @@ export const AVAILABLE_COLUMNS: ColumnDefinition[] = [
     shortLabel: "Deadline",
     description: "Ngày dự kiến lên bài, cảnh báo trễ deadline hoặc khẩn cấp",
     defaultVisible: true,
-    minWidth: "150px",
+    minWidth: "115px",
   },
   {
     id: "fee",
@@ -81,7 +81,7 @@ export const AVAILABLE_COLUMNS: ColumnDefinition[] = [
     shortLabel: "Chi phí",
     description: "Mức phí booking thỏa thuận và % hoa hồng affiliate",
     defaultVisible: true,
-    minWidth: "150px",
+    minWidth: "115px",
   },
   {
     id: "payment",
@@ -89,7 +89,7 @@ export const AVAILABLE_COLUMNS: ColumnDefinition[] = [
     shortLabel: "Thanh toán",
     description: "Tình trạng thanh toán, số tiền đã trả và công nợ còn lại",
     defaultVisible: true,
-    minWidth: "160px",
+    minWidth: "120px",
   },
   {
     id: "recipient",
@@ -97,7 +97,7 @@ export const AVAILABLE_COLUMNS: ColumnDefinition[] = [
     shortLabel: "Người nhận",
     description: "Họ tên, SĐT và địa chỉ nhận mẫu của KOL",
     defaultVisible: false,
-    minWidth: "220px",
+    minWidth: "150px",
   },
   {
     id: "performance",
@@ -105,7 +105,7 @@ export const AVAILABLE_COLUMNS: ColumnDefinition[] = [
     shortLabel: "Lượt xem",
     description: "Lượt views, tương tác từ video đã gắn link",
     defaultVisible: false,
-    minWidth: "140px",
+    minWidth: "100px",
   },
   {
     id: "notes",
@@ -113,7 +113,7 @@ export const AVAILABLE_COLUMNS: ColumnDefinition[] = [
     shortLabel: "Ghi chú",
     description: "Ghi chú nội bộ cho booking này",
     defaultVisible: false,
-    minWidth: "160px",
+    minWidth: "130px",
   },
   {
     id: "actions",
@@ -122,7 +122,7 @@ export const AVAILABLE_COLUMNS: ColumnDefinition[] = [
     description: "Xem chi tiết, nhân bản hoặc xóa",
     defaultVisible: true,
     required: true,
-    minWidth: "90px",
+    minWidth: "75px",
   },
 ];
 

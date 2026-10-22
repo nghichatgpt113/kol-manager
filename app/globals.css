@@ -1,8 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc;
+  --foreground: #09090b;
+  --surface-card: #ffffff;
+  --surface-muted: #f1f5f9;
+  --surface-elevated: #ffffff;
+  --border-subtle: rgba(9, 9, 11, 0.06);
+  --border-strong: rgba(9, 9, 11, 0.12);
+  --brand-accent: #4f46e5;
+  --brand-accent-hover: #4338ca;
+  --brand-accent-glow: rgba(79, 70, 229, 0.15);
   color-scheme: light;
 }
 
@@ -12,37 +20,79 @@
   --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    color-scheme: dark;
-  }
-}
+@custom-variant dark (&:where(.dark, .dark *));
 
 .dark {
+  --background: #090a0f;
+  --foreground: #f4f4f5;
+  --surface-card: #111218;
+  --surface-muted: #181922;
+  --surface-elevated: #161720;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --brand-accent: #6366f1;
+  --brand-accent-hover: #4f46e5;
+  --brand-accent-glow: rgba(99, 102, 241, 0.25);
   color-scheme: dark;
+}
+
+html {
+  scrollbar-gutter: stable;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ==========================================================================
-   1. Universal Sleek Scrollbars (Zero stark white Windows scrollbars)
+   Tabular & Number Alignment Utilities
    ========================================================================== */
-/* Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(161, 161, 170, 0.35) transparent;
+.tabular-nums,
+[data-tabular="true"] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 
-/* WebKit / Chromium (Chrome, Edge, Safari, Opera) */
+/* ==========================================================================
+   High-End Surface Layering (Bevel highlight in dark mode)
+   ========================================================================== */
+.surface-card {
+  background-color: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+.dark .surface-card {
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 2px 4px 0 rgba(0, 0, 0, 0.35);
+}
+
+.surface-elevated {
+  background-color: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.dark .surface-elevated {
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.07), 0 20px 30px -10px rgba(0, 0, 0, 0.6);
+}
+
+/* ==========================================================================
+   1. Universal Sleek Scrollbars
+   ========================================================================== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -50,48 +100,33 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(161, 161, 170, 0.35);
+  background: rgba(148, 163, 184, 0.25);
   border-radius: 9999px;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.15s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(113, 113, 122, 0.6);
+  background: rgba(148, 163, 184, 0.45);
 }
 
 ::-webkit-scrollbar-corner {
   background: transparent;
 }
 
-/* Dark mode scrollbars */
-@media (prefers-color-scheme: dark) {
-  * {
-    scrollbar-color: rgba(113, 113, 122, 0.45) transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: rgba(113, 113, 122, 0.4);
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(161, 161, 170, 0.65);
-  }
-}
-
 .dark * {
-  scrollbar-color: rgba(113, 113, 122, 0.45) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: rgba(113, 113, 122, 0.4);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(161, 161, 170, 0.65);
+  background: rgba(255, 255, 255, 0.28);
 }
 
 /* ==========================================================================
-   2. Number Inputs - Remove stark white browser spin buttons
+   2. Number Inputs - Remove browser spin buttons
    ========================================================================== */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
@@ -105,46 +140,31 @@ input[type="number"] {
 }
 
 /* ==========================================================================
-   3. Date & Calendar Pickers - Native Dark/Light Synchronized Popups
+   3. Date & Form Controls Native Dark/Light Sync
    ========================================================================== */
-input[type="date"] {
+input[type="date"],
+input[type="time"],
+select,
+select option,
+input,
+textarea {
   color-scheme: light;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 4px;
   padding: 2px;
-  opacity: 0.6;
+  opacity: 0.55;
   transition: opacity 0.15s ease;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator:hover {
-  opacity: 1;
+  opacity: 0.9;
 }
 
-@media (prefers-color-scheme: dark) {
-  input[type="date"] {
-    color-scheme: dark;
-  }
-}
-
-.dark input[type="date"] {
-  color-scheme: dark;
-}
-
-/* ==========================================================================
-   4. Native Select & Form Controls Dark Mode Synchronization
-   ========================================================================== */
-@media (prefers-color-scheme: dark) {
-  select,
-  select option,
-  input,
-  textarea {
-    color-scheme: dark;
-  }
-}
-
+.dark input[type="date"],
+.dark input[type="time"],
 .dark select,
 .dark select option,
 .dark input,

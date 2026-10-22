@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import type { Booking, BookingStatus, CreateBookingInput } from "@/lib/types/booking";
 import type { Kol } from "@/lib/types/kol";
 import type { Product } from "@/lib/types/product";
@@ -61,17 +61,11 @@ export default function BookingTable({
 }: BookingTableProps) {
   // Pagination State
   const [pageSize, setPageSize] = useState<number>(25);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [rawCurrentPage, setCurrentPage] = useState<number>(1);
 
   // Total pages and safe current page
   const totalPages = Math.max(1, Math.ceil(bookings.length / pageSize));
-
-  // Reset to page 1 if current page exceeds total pages
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(1);
-    }
-  }, [totalPages, currentPage]);
+  const currentPage = Math.min(rawCurrentPage, totalPages);
 
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = Math.min(bookings.length, startIndex + pageSize);
@@ -118,19 +112,19 @@ export default function BookingTable({
   }, [currentPage, totalPages]);
 
   return (
-    <div className="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-xs flex flex-col overflow-hidden">
+    <div className="flex flex-col w-full">
       {/* 
         Scrollable Table Container:
         - Max height calculated to fit viewport
         - Sticky thead so header stays firmly pinned on top
         - Rows scroll INSIDE the table, page doesn't scroll wildly
       */}
-      <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-250px)] min-h-[420px] relative">
-        <table className="w-full text-left text-sm border-collapse min-w-[1000px]">
+      <div className="overflow-x-auto overflow-y-auto max-h-[calc(100vh-200px)] min-h-[450px] relative">
+        <table className="w-full text-left text-xs border-collapse">
           <thead className="sticky top-0 z-20 bg-zinc-50/95 dark:bg-zinc-900/95 backdrop-blur-xs border-b border-zinc-200 dark:border-zinc-800 shadow-2xs select-none">
             <tr className="text-[11px] text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider">
               {/* Checkbox select all */}
-              <th className="py-3 px-3 w-10 text-center bg-inherit">
+              <th className="py-2 px-2.5 w-9 text-center bg-inherit">
                 <input
                   type="checkbox"
                   checked={isAllSelected}
@@ -146,10 +140,10 @@ export default function BookingTable({
               {visibleColumns.includes("code") && (
                 <th
                   onClick={() => onSort("created_at")}
-                  className="py-3 px-4 w-[140px] whitespace-nowrap cursor-pointer hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 transition group bg-inherit"
+                  className="py-2 px-2.5 w-[110px] whitespace-nowrap cursor-pointer hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 transition group bg-inherit"
                 >
-                  <div className="flex items-center gap-1.5">
-                    <span>Mã & Định dạng</span>
+                  <div className="flex items-center gap-1">
+                    <span>Mã & Loại</span>
                     {renderSortIndicator("created_at")}
                   </div>
                 </th>
@@ -159,9 +153,9 @@ export default function BookingTable({
               {visibleColumns.includes("kol") && (
                 <th
                   onClick={() => onSort("kol_name")}
-                  className="py-3 px-4 min-w-[190px] whitespace-nowrap cursor-pointer hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 transition group bg-inherit"
+                  className="py-2 px-2.5 min-w-[140px] max-w-[180px] whitespace-nowrap cursor-pointer hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 transition group bg-inherit"
                 >
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1">
                     <span>KOL / KOC</span>
                     {renderSortIndicator("kol_name")}
                   </div>
@@ -170,7 +164,7 @@ export default function BookingTable({
 
               {/* Product & Campaign */}
               {visibleColumns.includes("product") && (
-                <th className="py-3 px-4 min-w-[200px] whitespace-nowrap bg-inherit">
+                <th className="py-2 px-2.5 min-w-[150px] max-w-[200px] whitespace-nowrap bg-inherit">
                   Sản phẩm & Chiến dịch
                 </th>
               )}
@@ -179,9 +173,9 @@ export default function BookingTable({
               {visibleColumns.includes("status") && (
                 <th
                   onClick={() => onSort("status")}
-                  className="py-3 px-4 w-[160px] whitespace-nowrap cursor-pointer hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 transition group bg-inherit"
+                  className="py-2 px-2.5 w-[120px] whitespace-nowrap cursor-pointer hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 transition group bg-inherit"
                 >
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1">
                     <span>Trạng thái</span>
                     {renderSortIndicator("status")}
                   </div>
@@ -190,7 +184,7 @@ export default function BookingTable({
 
               {/* Logistics */}
               {visibleColumns.includes("logistics") && (
-                <th className="py-3 px-4 min-w-[180px] whitespace-nowrap bg-inherit">
+                <th className="py-2 px-2.5 min-w-[125px] max-w-[160px] whitespace-nowrap bg-inherit">
                   Hậu cần & Vận đơn
                 </th>
               )}
@@ -199,10 +193,10 @@ export default function BookingTable({
               {visibleColumns.includes("deadline") && (
                 <th
                   onClick={() => onSort("expected_post_at")}
-                  className="py-3 px-4 w-[150px] whitespace-nowrap cursor-pointer hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 transition group bg-inherit"
+                  className="py-2 px-2.5 w-[105px] whitespace-nowrap cursor-pointer hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 transition group bg-inherit"
                 >
-                  <div className="flex items-center gap-1.5">
-                    <span>Hạn làm video</span>
+                  <div className="flex items-center gap-1">
+                    <span>Hạn video</span>
                     {renderSortIndicator("expected_post_at")}
                   </div>
                 </th>
@@ -212,9 +206,9 @@ export default function BookingTable({
               {visibleColumns.includes("fee") && (
                 <th
                   onClick={() => onSort("booking_fee")}
-                  className="py-3 px-4 w-[150px] whitespace-nowrap cursor-pointer hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 transition group bg-inherit"
+                  className="py-2 px-2.5 w-[100px] whitespace-nowrap cursor-pointer hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80 transition group bg-inherit"
                 >
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1">
                     <span>Chi phí & HH</span>
                     {renderSortIndicator("booking_fee")}
                   </div>
@@ -223,35 +217,35 @@ export default function BookingTable({
 
               {/* Payment */}
               {visibleColumns.includes("payment") && (
-                <th className="py-3 px-4 min-w-[160px] whitespace-nowrap bg-inherit">
+                <th className="py-2 px-2.5 w-[105px] whitespace-nowrap bg-inherit">
                   Thanh toán
                 </th>
               )}
 
               {/* Recipient */}
               {visibleColumns.includes("recipient") && (
-                <th className="py-3 px-4 min-w-[220px] whitespace-nowrap bg-inherit">
+                <th className="py-2 px-2.5 min-w-[130px] max-w-[170px] whitespace-nowrap bg-inherit">
                   Người nhận hàng
                 </th>
               )}
 
               {/* Performance */}
               {visibleColumns.includes("performance") && (
-                <th className="py-3 px-4 w-[130px] whitespace-nowrap bg-inherit">
-                  Hiệu quả video
+                <th className="py-2 px-2.5 w-[85px] whitespace-nowrap bg-inherit">
+                  Hiệu quả
                 </th>
               )}
 
               {/* Notes */}
               {visibleColumns.includes("notes") && (
-                <th className="py-3 px-4 min-w-[160px] whitespace-nowrap bg-inherit">
-                  Ghi chú nhanh
+                <th className="py-2 px-2.5 min-w-[110px] max-w-[160px] whitespace-nowrap bg-inherit">
+                  Ghi chú
                 </th>
               )}
 
               {/* Actions */}
               {visibleColumns.includes("actions") && (
-                <th className="py-3 px-4 w-[90px] text-right whitespace-nowrap bg-inherit">
+                <th className="py-2 px-2.5 w-[70px] text-right whitespace-nowrap bg-inherit">
                   Thao tác
                 </th>
               )}
@@ -283,7 +277,7 @@ export default function BookingTable({
                       Không có booking nào phù hợp
                     </p>
                     <p className="text-xs text-zinc-400 mt-1">
-                      Bấm "+ Thêm dòng nhanh" hoặc "Tạo Booking mới" để bắt đầu
+                      Bấm &ldquo;+ Thêm dòng nhanh&rdquo; hoặc &ldquo;Tạo Booking mới&rdquo; để bắt đầu
                     </p>
                   </div>
                 </td>
@@ -309,7 +303,7 @@ export default function BookingTable({
                   >
                     {/* Row checkbox */}
                     <td
-                      className="py-3 px-3 text-center align-middle"
+                      className="py-2 px-2.5 text-center align-middle w-9"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <input
@@ -322,18 +316,18 @@ export default function BookingTable({
 
                     {/* Code & Type */}
                     {visibleColumns.includes("code") && (
-                      <td className="py-3 px-4 whitespace-nowrap align-middle">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-mono font-bold text-xs text-zinc-900 dark:text-zinc-100 px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-700/60 inline-block shadow-2xs">
+                      <td className="py-2 px-2.5 whitespace-nowrap align-middle w-[110px]">
+                        <div className="flex items-center gap-1">
+                          <span className="font-mono font-bold text-xs text-zinc-900 dark:text-zinc-100 px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-700/60 inline-block shadow-2xs">
                             {b.code || "BK-TEMP"}
                           </span>
                           {b.code && (
-                            <CopyButton text={b.code} title="Sao chép mã booking" size="xs" />
+                            <CopyButton text={b.code} title="Sao chép mã" size="xs" />
                           )}
                         </div>
-                        <div className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 flex items-center gap-1.5">
+                        <div className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5 flex items-center gap-1">
                           <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 dark:bg-zinc-500 shrink-0" />
-                          <span className="truncate max-w-[120px]">
+                          <span className="truncate max-w-[95px]">
                             {b.content_type || "Review"}
                           </span>
                         </div>
@@ -342,9 +336,9 @@ export default function BookingTable({
 
                     {/* KOL */}
                     {visibleColumns.includes("kol") && (
-                      <td className="py-3 px-4 align-middle">
-                        <div className="flex items-center gap-2.5">
-                          <div className="relative w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 shrink-0 shadow-2xs">
+                      <td className="py-2 px-2.5 align-middle min-w-[140px] max-w-[180px]">
+                        <div className="flex items-center gap-2">
+                          <div className="relative w-7 h-7 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-[11px] font-bold text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 shrink-0 shadow-2xs">
                             {b.kol?.display_name
                               ? b.kol.display_name.charAt(0).toUpperCase()
                               : b.kol?.username?.charAt(0).toUpperCase() || "?"}
@@ -357,8 +351,8 @@ export default function BookingTable({
                             <div className="font-medium text-xs text-zinc-900 dark:text-zinc-100 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                               {b.kol?.display_name || b.kol?.username || "Chưa gắn KOL"}
                             </div>
-                            <div className="text-[11px] text-zinc-400 flex items-center gap-1.5 mt-0.5">
-                              <span>@{b.kol?.username || "—"}</span>
+                            <div className="text-[10px] text-zinc-400 flex items-center gap-1 mt-0.5">
+                              <span className="truncate max-w-[80px]">@{b.kol?.username || "—"}</span>
                               {b.kol?.username && (
                                 <CopyButton
                                   text={b.kol.username}
@@ -380,16 +374,6 @@ export default function BookingTable({
                                   </svg>
                                 </a>
                               )}
-                              {b.kol?.followers_count ? (
-                                <>
-                                  <span>•</span>
-                                  <span>
-                                    {new Intl.NumberFormat("vi-VN", { notation: "compact" }).format(
-                                      b.kol.followers_count
-                                    )}
-                                  </span>
-                                </>
-                              ) : null}
                             </div>
                           </div>
                         </div>
@@ -398,15 +382,15 @@ export default function BookingTable({
 
                     {/* Product & Campaign */}
                     {visibleColumns.includes("product") && (
-                      <td className="py-3 px-4 align-middle">
-                        <div className="font-medium text-xs text-zinc-800 dark:text-zinc-200 truncate max-w-[190px]">
+                      <td className="py-2 px-2.5 align-middle min-w-[150px] max-w-[200px]">
+                        <div className="font-medium text-xs text-zinc-800 dark:text-zinc-200 truncate max-w-[180px]">
                           {b.product?.name || (
                             <span className="text-zinc-400 italic">Chưa gắn SP</span>
                           )}
                         </div>
-                        <div className="text-[11px] text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5 mt-0.5">
+                        <div className="text-[10px] text-zinc-500 dark:text-zinc-400 flex items-center gap-1 mt-0.5">
                           {b.campaign ? (
-                            <span className="px-1.5 py-0.2 rounded bg-zinc-100 dark:bg-zinc-800 text-[10px] font-semibold text-zinc-700 dark:text-zinc-300 border border-zinc-200/60 dark:border-zinc-700/60 truncate max-w-[130px]">
+                            <span className="px-1.5 py-0.2 rounded bg-zinc-100 dark:bg-zinc-800 text-[10px] font-semibold text-zinc-700 dark:text-zinc-300 border border-zinc-200/60 dark:border-zinc-700/60 truncate max-w-[120px]">
                               {b.campaign.name}
                             </span>
                           ) : (
@@ -418,7 +402,7 @@ export default function BookingTable({
 
                     {/* Status (INLINE EDIT) */}
                     {visibleColumns.includes("status") && (
-                      <td className="py-3 px-4 align-middle">
+                      <td className="py-2 px-2.5 align-middle w-[120px]">
                         <InlineStatusCell
                           bookingId={b.id}
                           status={b.status}
@@ -429,7 +413,7 @@ export default function BookingTable({
 
                     {/* Logistics (INLINE EDIT & CARRIER LINK) */}
                     {visibleColumns.includes("logistics") && (
-                      <td className="py-3 px-4 align-middle">
+                      <td className="py-2 px-2.5 align-middle min-w-[125px] max-w-[160px]">
                         <InlineTrackingCell
                           bookingId={b.id}
                           carrier={b.sample_carrier}
@@ -444,10 +428,11 @@ export default function BookingTable({
 
                     {/* Deadline (INLINE EDIT) */}
                     {visibleColumns.includes("deadline") && (
-                      <td className="py-3 px-4 align-middle">
+                      <td className="py-2 px-2.5 align-middle w-[105px]">
                         <InlineDateCell
                           bookingId={b.id}
                           expectedPostAt={b.expected_post_at}
+                          status={b.status}
                           onUpdate={(date) => onUpdateBooking(b.id, { expected_post_at: date })}
                         />
                       </td>
@@ -455,7 +440,7 @@ export default function BookingTable({
 
                     {/* Fee & Commission (INLINE EDIT) */}
                     {visibleColumns.includes("fee") && (
-                      <td className="py-3 px-4 align-middle">
+                      <td className="py-2 px-2.5 align-middle w-[100px]">
                         <InlineFeeCell
                           bookingId={b.id}
                           bookingFee={Number(b.booking_fee) || 0}
@@ -468,7 +453,7 @@ export default function BookingTable({
 
                     {/* Payment (INLINE EDIT) */}
                     {visibleColumns.includes("payment") && (
-                      <td className="py-3 px-4 align-middle">
+                      <td className="py-2 px-2.5 align-middle w-[105px]">
                         <InlinePaymentCell
                           bookingId={b.id}
                           paymentStatus={b.payment_status}
@@ -481,11 +466,11 @@ export default function BookingTable({
 
                     {/* Recipient info */}
                     {visibleColumns.includes("recipient") && (
-                      <td className="py-3 px-4 align-middle">
-                        <div className="text-xs font-medium text-zinc-900 dark:text-zinc-100 truncate max-w-[200px]">
+                      <td className="py-2 px-2.5 align-middle min-w-[130px] max-w-[170px]">
+                        <div className="text-xs font-medium text-zinc-900 dark:text-zinc-100 truncate max-w-[160px]">
                           {b.recipient_name || "—"} {b.recipient_phone ? `(${b.recipient_phone})` : ""}
                         </div>
-                        <div className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate max-w-[200px] mt-0.5">
+                        <div className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate max-w-[160px] mt-0.5">
                           {b.recipient_address || "—"}
                         </div>
                       </td>
@@ -493,7 +478,7 @@ export default function BookingTable({
 
                     {/* Video Performance */}
                     {visibleColumns.includes("performance") && (
-                      <td className="py-3 px-4 align-middle">
+                      <td className="py-2 px-2.5 align-middle w-[85px]">
                         {videoCount > 0 ? (
                           <div>
                             <span className="font-mono font-bold text-xs text-indigo-600 dark:text-indigo-400">
@@ -504,14 +489,14 @@ export default function BookingTable({
                             </span>
                           </div>
                         ) : (
-                          <span className="text-[11px] text-zinc-400 italic">Chưa có video</span>
+                          <span className="text-[10px] text-zinc-400 italic">Chưa có video</span>
                         )}
                       </td>
                     )}
 
                     {/* Notes (INLINE EDIT) */}
                     {visibleColumns.includes("notes") && (
-                      <td className="py-3 px-4 align-middle">
+                      <td className="py-2 px-2.5 align-middle min-w-[110px] max-w-[160px]">
                         <InlineNotesCell
                           bookingId={b.id}
                           notes={b.notes}
@@ -523,7 +508,7 @@ export default function BookingTable({
                     {/* Actions */}
                     {visibleColumns.includes("actions") && (
                       <td
-                        className="py-3 px-4 text-right align-middle whitespace-nowrap"
+                        className="py-2 px-2.5 text-right align-middle whitespace-nowrap w-[70px]"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="flex items-center justify-end gap-1">
@@ -559,42 +544,45 @@ export default function BookingTable({
       </div>
 
       {/* Pinned Pagination Footer Bar */}
-      <div className="border-t border-zinc-200 dark:border-zinc-800 px-4 py-3 bg-zinc-50/80 dark:bg-zinc-900/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 select-none">
-        {/* Left: Range and total */}
-        <div className="text-xs text-zinc-500 dark:text-zinc-400">
-          {bookings.length > 0 ? (
-            <>
-              Hiển thị{" "}
-              <strong className="font-semibold text-zinc-800 dark:text-zinc-200">
-                {startIndex + 1} - {endIndex}
-              </strong>{" "}
-              trên tổng số{" "}
-              <strong className="font-semibold text-zinc-800 dark:text-zinc-200">
-                {bookings.length}
-              </strong>{" "}
-              booking
-            </>
-          ) : (
-            "0 booking"
-          )}
-        </div>
+      <div className="border-t border-zinc-200 dark:border-zinc-800 px-3 py-2 bg-zinc-50/80 dark:bg-zinc-900/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 select-none">
+        {/* Left: Range, total and rows per page selector */}
+        <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400">
+          <div>
+            {bookings.length > 0 ? (
+              <>
+                Hiển thị{" "}
+                <strong className="font-semibold text-zinc-800 dark:text-zinc-200">
+                  {startIndex + 1} - {endIndex}
+                </strong>{" "}
+                trên tổng số{" "}
+                <strong className="font-semibold text-zinc-800 dark:text-zinc-200">
+                  {bookings.length}
+                </strong>{" "}
+                booking
+              </>
+            ) : (
+              "0 booking"
+            )}
+          </div>
 
-        {/* Center: Rows per page selector */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-zinc-500 dark:text-zinc-400">Số dòng:</span>
-          <select
-            value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-            className="text-xs font-semibold bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-2 py-1 text-zinc-800 dark:text-zinc-200 focus:outline-none cursor-pointer"
-          >
-            <option value={15}>15 / trang</option>
-            <option value={25}>25 / trang</option>
-            <option value={50}>50 / trang</option>
-            <option value={100}>100 / trang</option>
-          </select>
+          <div className="h-3.5 w-px bg-zinc-200 dark:bg-zinc-700 hidden sm:block" />
+
+          <div className="flex items-center gap-1.5">
+            <span className="text-zinc-400">Dòng/trang:</span>
+            <select
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              className="text-xs font-semibold bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md px-1.5 py-0.5 text-zinc-800 dark:text-zinc-200 focus:outline-none cursor-pointer"
+            >
+              <option value={15}>15</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
         </div>
 
         {/* Right: Page navigation buttons */}

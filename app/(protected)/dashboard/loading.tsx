@@ -1,116 +1,332 @@
+import Link from "next/link";
+import DashboardFloatingAction from "@/components/dashboard-floating-action";
+
+const STATUS_STAGES = [
+  { label: "Đã liên hệ", dot: "bg-sky-500" },
+  { label: "Đã xác nhận", dot: "bg-indigo-500" },
+  { label: "Đã gửi mẫu", dot: "bg-amber-500" },
+  { label: "Đã nhận mẫu", dot: "bg-yellow-500" },
+  { label: "Đã gửi draft", dot: "bg-purple-500" },
+  { label: "Đã đăng", dot: "bg-emerald-500" },
+  { label: "Hoàn tất", dot: "bg-teal-500" },
+  { label: "Đã huỷ", dot: "bg-zinc-400" },
+];
+
 export default function DashboardLoading() {
   return (
-    <div className="space-y-8">
-      {/* Header - Static Shell */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-6">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Xin chào
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            Quản lý các hợp tác, danh bạ nhà sáng tạo, danh mục sản phẩm và chiến dịch.
-          </p>
+    <div className="space-y-6 px-3 sm:px-5 py-3 pb-24">
+      {/* 1. High-Density Unified KPI Summary Block */}
+      <div className="rounded-xl bg-white dark:bg-[#111218] border border-zinc-200/80 dark:border-white/[0.08] shadow-xs overflow-hidden">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 divide-y lg:divide-y-0 divide-x-0 sm:divide-x divide-zinc-200/60 dark:divide-white/[0.06]">
+          {/* Metric 1 */}
+          <Link
+            href="/bookings"
+            className="p-4 flex flex-col justify-between hover:bg-zinc-50/60 dark:hover:bg-white/[0.02] transition-colors"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                Tổng hợp tác
+              </span>
+              <span className="w-2 h-2 rounded-full bg-indigo-500 opacity-80" />
+            </div>
+            <div className="mt-3">
+              <div className="h-8 w-16 bg-zinc-200/80 dark:bg-white/[0.08] rounded-md animate-pulse" />
+              <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5">
+                Toàn bộ chiến dịch
+              </p>
+            </div>
+          </Link>
+
+          {/* Metric 2 */}
+          <Link
+            href="/bookings"
+            className="p-4 flex flex-col justify-between hover:bg-zinc-50/60 dark:hover:bg-white/[0.02] transition-colors"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                Đang thực hiện
+              </span>
+              <span className="w-2 h-2 rounded-full bg-sky-500 opacity-80" />
+            </div>
+            <div className="mt-3">
+              <div className="h-8 w-12 bg-sky-200/60 dark:bg-sky-500/20 rounded-md animate-pulse" />
+              <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5">
+                Tiến độ đang chạy
+              </p>
+            </div>
+          </Link>
+
+          {/* Metric 3 */}
+          <Link
+            href="/bookings"
+            className="p-4 flex flex-col justify-between hover:bg-zinc-50/60 dark:hover:bg-white/[0.02] transition-colors"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                Video đã lên
+              </span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 opacity-80" />
+            </div>
+            <div className="mt-3">
+              <div className="h-8 w-12 bg-emerald-200/60 dark:bg-emerald-500/20 rounded-md animate-pulse" />
+              <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5">
+                Hoàn tất đăng bài
+              </p>
+            </div>
+          </Link>
+
+          {/* Metric 4 */}
+          <Link
+            href="/bookings"
+            className="p-4 flex flex-col justify-between hover:bg-zinc-50/60 dark:hover:bg-white/[0.02] transition-colors"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                Sắp đến hạn
+              </span>
+              <span className="w-2 h-2 rounded-full bg-amber-500 opacity-80" />
+            </div>
+            <div className="mt-3">
+              <div className="h-8 w-10 bg-amber-200/60 dark:bg-amber-500/20 rounded-md animate-pulse" />
+              <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5">
+                Lịch đăng trong tuần
+              </p>
+            </div>
+          </Link>
+
+          {/* Metric 5 */}
+          <Link
+            href="/tasks"
+            className="p-4 flex flex-col justify-between hover:bg-zinc-50/60 dark:hover:bg-white/[0.02] transition-colors"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                Việc chờ xử lý
+              </span>
+              <span className="w-2 h-2 rounded-full bg-purple-500 opacity-80" />
+            </div>
+            <div className="mt-3">
+              <div className="h-8 w-10 bg-zinc-200/80 dark:bg-white/[0.08] rounded-md animate-pulse" />
+              <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5">
+                Nhiệm vụ vận hành
+              </p>
+            </div>
+          </Link>
+
+          {/* Metric 6 */}
+          <Link
+            href="/kols"
+            className="p-4 flex flex-col justify-between hover:bg-zinc-50/60 dark:hover:bg-white/[0.02] transition-colors"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                Nhà sáng tạo
+              </span>
+              <span className="w-2 h-2 rounded-full bg-zinc-400 opacity-60" />
+            </div>
+            <div className="mt-3">
+              <div className="h-8 w-14 bg-zinc-200/80 dark:bg-white/[0.08] rounded-md animate-pulse" />
+              <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5">
+                KOL trong danh bạ
+              </p>
+            </div>
+          </Link>
+        </div>
+      </div>
+
+      {/* 2. Attention & Deadlines Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Overdue Bookings Column */}
+        <div className="rounded-xl bg-white dark:bg-[#111218] border border-zinc-200/80 dark:border-white/[0.08] p-5 shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-white/[0.06]">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-rose-500" />
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                Hợp tác quá hạn
+              </h3>
+            </div>
+            <Link
+              href="/bookings"
+              className="text-xs font-medium text-zinc-500 hover:text-zinc-950 dark:hover:text-zinc-100 transition flex items-center gap-1"
+            >
+              <span>Xem tất cả</span>
+              <span>&rarr;</span>
+            </Link>
+          </div>
+
+          <div className="space-y-2">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className="p-3 rounded-lg border border-zinc-200/70 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-white/[0.02] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 animate-pulse"
+              >
+                <div className="min-w-0 space-y-1.5 flex-1">
+                  <div className="h-3.5 w-32 bg-zinc-200/80 dark:bg-white/[0.08] rounded" />
+                  <div className="h-3 w-44 bg-zinc-100 dark:bg-white/[0.04] rounded" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-5 w-20 bg-rose-100 dark:bg-rose-950/40 rounded" />
+                  <div className="h-3 w-16 bg-zinc-100 dark:bg-white/[0.04] rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Đã kết nối Supabase
+        {/* Upcoming Deadlines Column */}
+        <div className="rounded-xl bg-white dark:bg-[#111218] border border-zinc-200/80 dark:border-white/[0.08] p-5 shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-white/[0.06]">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-500" />
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                Deadline sắp tới
+              </h3>
+            </div>
+            <Link
+              href="/bookings"
+              className="text-xs font-medium text-zinc-500 hover:text-zinc-950 dark:hover:text-zinc-100 transition flex items-center gap-1"
+            >
+              <span>Xem tất cả</span>
+              <span>&rarr;</span>
+            </Link>
+          </div>
+
+          <div className="space-y-2">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className="p-3 rounded-lg border border-zinc-200/70 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-white/[0.02] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 animate-pulse"
+              >
+                <div className="min-w-0 space-y-1.5 flex-1">
+                  <div className="h-3.5 w-32 bg-zinc-200/80 dark:bg-white/[0.08] rounded" />
+                  <div className="h-3 w-44 bg-zinc-100 dark:bg-white/[0.04] rounded" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-5 w-20 bg-amber-100 dark:bg-amber-950/40 rounded" />
+                  <div className="h-3 w-16 bg-zinc-100 dark:bg-white/[0.04] rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Booking Status Pipeline */}
+      <div className="rounded-xl bg-white dark:bg-[#111218] border border-zinc-200/80 dark:border-white/[0.08] p-5 shadow-xs space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-white/[0.06]">
+          <div>
+            <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+              Phân bổ tiến độ hợp tác (Pipeline)
+            </h3>
+            <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
+              Quy trình 8 bước từ liên hệ ban đầu đến hoàn tất
+            </p>
+          </div>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium inline-flex items-center gap-1.5">
+            <span>Tổng cộng:</span>
+            <span className="h-4 w-7 bg-zinc-200/80 dark:bg-white/[0.08] rounded animate-pulse inline-block" />
+            <span>hợp tác</span>
           </span>
         </div>
-      </div>
 
-      {/* 4 Quick Navigation Cards - Exact Real DOM Cards (Zero CLS) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Bookings Card */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs hover:border-zinc-400 dark:hover:border-zinc-600 transition">
-          <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-4">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-            </svg>
-          </div>
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-            Tiến độ Booking &rarr;
-          </h2>
-          <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-            Điều phối toàn bộ quy trình hợp tác, giao vận mẫu và theo dõi thanh toán.
-          </p>
-        </div>
+        {/* Progress Bar Skeleton */}
+        <div className="h-2 w-full bg-zinc-100 dark:bg-white/[0.06] rounded-full overflow-hidden animate-pulse" />
 
-        {/* KOLs Card */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs hover:border-zinc-400 dark:hover:border-zinc-600 transition">
-          <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-          </div>
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-            Danh bạ KOL / KOC &rarr;
-          </h2>
-          <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-            Quản lý hồ sơ nhà sáng tạo, nền tảng, kênh liên hệ và số lượng người theo dõi.
-          </p>
-        </div>
-
-        {/* Products Card */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs hover:border-zinc-400 dark:hover:border-zinc-600 transition">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-4">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-          </div>
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-            Danh mục Sản phẩm &rarr;
-          </h2>
-          <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-            Cấu hình giá vốn mẫu, tỷ lệ % hoa hồng và định mức ngân sách ads mặc định.
-          </p>
-        </div>
-
-        {/* Campaigns Card */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs hover:border-zinc-400 dark:hover:border-zinc-600 transition">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-            Chiến dịch & Ngân sách &rarr;
-          </h2>
-          <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-            Theo dõi các chiến dịch định kỳ, sự kiện, thời gian chạy và hạn mức chi phí.
-          </p>
+        {/* Status Stages Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 pt-1">
+          {STATUS_STAGES.map((item) => (
+            <div
+              key={item.label}
+              className="p-2.5 rounded-lg border border-zinc-200/90 dark:border-white/[0.1] bg-white dark:bg-white/[0.02]"
+            >
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className={`w-1.5 h-1.5 rounded-full ${item.dot}`} />
+                <span className="text-[11px] font-medium text-zinc-600 dark:text-zinc-400 truncate">
+                  {item.label}
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between">
+                <div className="h-6 w-6 bg-zinc-200/70 dark:bg-white/[0.06] rounded animate-pulse" />
+                <div className="h-3 w-7 bg-zinc-100 dark:bg-white/[0.04] rounded animate-pulse" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Profile & Session Card - Static Labels with pulse for values only */}
-      <div className="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 space-y-4 shadow-xs">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-          Thông tin Tài khoản & Cơ sở dữ liệu
-        </h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-          <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
-            <span className="text-zinc-500 dark:text-zinc-400 block mb-1">Tài khoản Email</span>
-            <div className="h-4 w-32 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
+      {/* 4. Operations & Activity (Tasks + Recent Videos) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Pending Tasks */}
+        <div className="rounded-xl bg-white dark:bg-[#111218] border border-zinc-200/80 dark:border-white/[0.08] p-5 shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-white/[0.06]">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-purple-500" />
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                Công việc chờ xử lý
+              </h3>
+            </div>
+            <Link
+              href="/tasks"
+              className="text-xs font-medium text-zinc-500 hover:text-zinc-950 dark:hover:text-zinc-100 transition flex items-center gap-1"
+            >
+              <span>Quản lý</span>
+              <span>&rarr;</span>
+            </Link>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
-            <span className="text-zinc-500 dark:text-zinc-400 block mb-1">Họ và tên</span>
-            <div className="h-4 w-28 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
+          <div className="space-y-2">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className="p-3 rounded-lg border border-zinc-200/70 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-white/[0.02] flex items-center justify-between gap-3 animate-pulse"
+              >
+                <div className="min-w-0 space-y-1.5 flex-1">
+                  <div className="h-4 w-24 bg-zinc-200/70 dark:bg-white/[0.06] rounded" />
+                  <div className="h-3.5 w-44 bg-zinc-200/80 dark:bg-white/[0.08] rounded" />
+                </div>
+                <div className="h-4 w-16 bg-zinc-100 dark:bg-white/[0.04] rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent Videos */}
+        <div className="rounded-xl bg-white dark:bg-[#111218] border border-zinc-200/80 dark:border-white/[0.08] p-5 shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-white/[0.06]">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                Video mới đăng
+              </h3>
+            </div>
+            <Link
+              href="/bookings"
+              className="text-xs font-medium text-zinc-500 hover:text-zinc-950 dark:hover:text-zinc-100 transition flex items-center gap-1"
+            >
+              <span>Xem booking</span>
+              <span>&rarr;</span>
+            </Link>
           </div>
 
-          <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
-            <span className="text-zinc-500 dark:text-zinc-400 block mb-1">Mã UUID Hồ sơ</span>
-            <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-800 rounded animate-pulse" />
-          </div>
-
-          <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
-            <span className="text-zinc-500 dark:text-zinc-400 block mb-1">Cơ chế Bảo mật</span>
-            <span className="font-medium text-emerald-600 dark:text-emerald-400 font-mono text-[11px]">Bảo mật RLS (Nghiêm ngặt)</span>
+          <div className="space-y-2">
+            {[1, 2].map((i) => (
+              <div
+                key={i}
+                className="p-3 rounded-lg border border-zinc-200/70 dark:border-white/[0.06] bg-zinc-50/50 dark:bg-white/[0.02] flex items-center justify-between gap-3 animate-pulse"
+              >
+                <div className="min-w-0 space-y-1.5 flex-1">
+                  <div className="h-3.5 w-36 bg-zinc-200/80 dark:bg-white/[0.08] rounded" />
+                  <div className="h-3 w-28 bg-zinc-100 dark:bg-white/[0.04] rounded" />
+                </div>
+                <div className="h-6 w-14 bg-zinc-200/70 dark:bg-white/[0.06] rounded-md" />
+              </div>
+            ))}
           </div>
         </div>
       </div>
+
+      {/* Floating Action Bar */}
+      <DashboardFloatingAction />
     </div>
   );
 }

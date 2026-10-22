@@ -31,6 +31,12 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingKol, setEditingKol] = useState<Kol | null>(null);
+  const [isChannelUrlManuallyEdited, setIsChannelUrlManuallyEdited] = useState(false);
+
+  const buildTikTokUrl = (rawUsername: string) => {
+    const clean = rawUsername.trim().replace(/^@+/, "");
+    return clean ? `https://www.tiktok.com/@${clean}` : "";
+  };
 
   // Form State
   const [formData, setFormData] = useState<CreateKolInput>({
@@ -85,6 +91,7 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
 
   const openCreateModal = () => {
     setEditingKol(null);
+    setIsChannelUrlManuallyEdited(false);
     setFormData({
       username: "",
       platform: "tiktok",
@@ -104,11 +111,20 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
 
   const openEditModal = (kol: Kol) => {
     setEditingKol(kol);
+    const expectedTikTokUrl = buildTikTokUrl(kol.username);
+    const existingUrl = (kol.channel_url || "").trim();
+    const isAutoTikTokUrl =
+      kol.platform === "tiktok" &&
+      (!existingUrl || existingUrl === expectedTikTokUrl);
+    setIsChannelUrlManuallyEdited(!isAutoTikTokUrl && Boolean(existingUrl));
     setFormData({
       username: kol.username,
       platform: kol.platform,
       display_name: kol.display_name || "",
-      channel_url: kol.channel_url || "",
+      channel_url:
+        kol.platform === "tiktok" && !existingUrl
+          ? expectedTikTokUrl
+          : kol.channel_url || "",
       followers_count: kol.followers_count || 0,
       niche: kol.niche || "",
       contact_phone: kol.contact_phone || "",
@@ -211,29 +227,15 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
     }
   };
 
-  const getActiveTabStyle = (platform: string) => {
-    switch (platform) {
-      case "facebook":
-        return "bg-blue-50 text-blue-700 border-blue-200/90 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/80 ring-1 ring-blue-500/20";
-      case "instagram":
-        return "bg-pink-50 text-pink-700 border-pink-200/90 dark:bg-pink-950/60 dark:text-pink-300 dark:border-pink-800/80 ring-1 ring-pink-500/20";
-      case "youtube":
-        return "bg-red-50 text-red-700 border-red-200/90 dark:bg-red-950/60 dark:text-red-300 dark:border-red-800/80 ring-1 ring-red-500/20";
-      case "shopee":
-        return "bg-orange-50 text-orange-700 border-orange-200/90 dark:bg-orange-950/60 dark:text-orange-300 dark:border-orange-800/80 ring-1 ring-orange-500/20";
-      case "tiktok":
-        return "bg-zinc-100 text-zinc-900 border-zinc-300/90 dark:bg-zinc-800 dark:text-zinc-100 dark:border-zinc-700 ring-1 ring-zinc-400/25";
-      case "all":
-      default:
-        return "bg-indigo-50 text-indigo-700 border-indigo-200/90 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800/80 ring-1 ring-indigo-500/20";
-    }
+  const getActiveTabStyle = () => {
+    return "bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 font-semibold shadow-2xs";
   };
 
   return (
-    <div className="space-y-4 pb-24">
+    <div className="space-y-4 px-3 sm:px-5 py-3 pb-24">
 
       {actionError && (
-        <div className="p-4 rounded-xl bg-red-50 text-red-800 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-900 text-sm flex items-center justify-between">
+        <div className="p-3.5 rounded-xl bg-red-50 text-red-800 dark:bg-red-950/40 dark:text-red-300 border border-red-200 dark:border-red-900/60 text-xs flex items-center justify-between">
           <span>{actionError}</span>
           <button
             type="button"
@@ -246,11 +248,11 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
       )}
 
       {/* Filter & Search Bar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xs">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white dark:bg-[#111218] p-3 rounded-xl border border-zinc-200/80 dark:border-white/[0.08] shadow-xs">
         {/* Search */}
         <div className="relative flex-1">
           <svg
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400"
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -262,22 +264,22 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Tìm theo username, tên hiển thị, ngành hàng, SĐT..."
-            className="w-full pl-10 pr-4 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm focus:outline-hidden focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100"
+            className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-zinc-50 dark:bg-white/[0.04] border border-zinc-200/80 dark:border-white/[0.08] text-xs focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-white/20 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400"
           />
         </div>
 
         {/* Platform Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
           <button
             type="button"
             onClick={() => setSelectedPlatform("all")}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer whitespace-nowrap border shadow-2xs ${
+            className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer whitespace-nowrap ${
               selectedPlatform === "all"
-                ? getActiveTabStyle("all")
-                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-transparent shadow-none"
+                ? getActiveTabStyle()
+                : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
             }`}
           >
-            Tất cả ({kols.length})
+            Tất cả <span className="tabular-nums font-mono text-[11px] opacity-75">({kols.length})</span>
           </button>
           {PLATFORMS.map((p) => {
             const count = kols.filter((k) => k.platform === p.value).length;
@@ -287,15 +289,15 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                 key={p.value}
                 type="button"
                 onClick={() => setSelectedPlatform(p.value)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 cursor-pointer whitespace-nowrap border shadow-2xs ${
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 cursor-pointer whitespace-nowrap ${
                   isSelected
-                    ? getActiveTabStyle(p.value)
-                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-transparent shadow-none"
+                    ? getActiveTabStyle()
+                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-white/[0.06]"
                 }`}
               >
                 <PlatformIcon platform={p.value} size="xs" />
                 <span>{p.label}</span>
-                <span className={`text-[11px] ${isSelected ? "font-bold opacity-80" : "opacity-60"}`}>
+                <span className={`text-[11px] tabular-nums font-mono ${isSelected ? "opacity-90 font-semibold" : "opacity-60"}`}>
                   ({count})
                 </span>
               </button>
@@ -331,23 +333,23 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
           )}
         </div>
       ) : (
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs">
+        <div className="bg-white dark:bg-[#111218] rounded-xl border border-zinc-200/80 dark:border-white/[0.08] overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 uppercase tracking-wider font-semibold">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-zinc-50/70 dark:bg-white/[0.02] border-b border-zinc-200/70 dark:border-white/[0.06] text-[11px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-semibold">
                 <tr>
-                  <th className="px-6 py-3.5">Nhà sáng tạo</th>
-                  <th className="px-6 py-3.5">Nền tảng</th>
-                  <th className="px-6 py-3.5">Người theo dõi</th>
-                  <th className="px-6 py-3.5">Ngành hàng</th>
-                  <th className="px-6 py-3.5">Liên hệ</th>
-                  <th className="px-6 py-3.5 text-right">Thao tác</th>
+                  <th className="px-4 py-3">Nhà sáng tạo</th>
+                  <th className="px-4 py-3">Nền tảng</th>
+                  <th className="px-4 py-3">Người theo dõi</th>
+                  <th className="px-4 py-3">Ngành hàng</th>
+                  <th className="px-4 py-3">Liên hệ</th>
+                  <th className="px-4 py-3 text-right">Thao tác</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+              <tbody className="divide-y divide-zinc-200/60 dark:divide-white/[0.06]">
                 {filteredKols.map((kol) => (
-                  <tr key={kol.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/40 transition">
-                    <td className="px-6 py-4">
+                  <tr key={kol.id} className="hover:bg-zinc-50/60 dark:hover:bg-white/[0.02] transition-colors">
+                    <td className="px-4 py-3">
                       <div>
                         <div className="font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
                           {kol.display_name || kol.username}
@@ -383,7 +385,7 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-4 py-3 whitespace-nowrap">
                       <span
                         className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wider ${getPlatformBadge(
                           kol.platform
@@ -394,17 +396,17 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                       </span>
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className="font-semibold text-zinc-900 dark:text-zinc-100 font-mono tabular-nums">
                         {formatFollowers(kol.followers_count)}
                       </span>
                     </td>
 
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       <NicheBadge niche={kol.niche} />
                     </td>
 
-                    <td className="px-6 py-4 text-xs text-zinc-600 dark:text-zinc-400 space-y-0.5">
+                    <td className="px-4 py-3 text-xs text-zinc-600 dark:text-zinc-400 space-y-0.5">
                       {kol.contact_phone && <div>📞 {kol.contact_phone}</div>}
                       {kol.contact_zalo && <div>💬 Zalo: {kol.contact_zalo}</div>}
                       {kol.contact_email && <div>✉️ {kol.contact_email}</div>}
@@ -413,7 +415,7 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                       )}
                     </td>
 
-                    <td className="px-6 py-4 text-right whitespace-nowrap">
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-2">
                         <button
                           type="button"
@@ -480,7 +482,22 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                     type="text"
                     required
                     value={formData.username}
-                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    onChange={(e) => {
+                      const newUsername = e.target.value;
+                      const shouldAutoFillUrl =
+                        formData.platform === "tiktok" &&
+                        (!isChannelUrlManuallyEdited || !formData.channel_url?.trim());
+                      if (!formData.channel_url?.trim()) {
+                        setIsChannelUrlManuallyEdited(false);
+                      }
+                      setFormData({
+                        ...formData,
+                        username: newUsername,
+                        ...(shouldAutoFillUrl
+                          ? { channel_url: buildTikTokUrl(newUsername) }
+                          : {}),
+                      });
+                    }}
                     placeholder="lananh_beauty (không có @)"
                     className="w-full px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm focus:outline-hidden focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100"
                   />
@@ -493,7 +510,27 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                   </label>
                   <CustomSelect
                     value={formData.platform}
-                    onChange={(val) => setFormData({ ...formData, platform: val as KolPlatform })}
+                    onChange={(val) => {
+                      const newPlatform = val as KolPlatform;
+                      let nextChannelUrl = formData.channel_url || "";
+                      if (
+                        newPlatform === "tiktok" &&
+                        (!isChannelUrlManuallyEdited || !nextChannelUrl.trim())
+                      ) {
+                        nextChannelUrl = buildTikTokUrl(formData.username);
+                        setIsChannelUrlManuallyEdited(false);
+                      } else if (
+                        newPlatform !== "tiktok" &&
+                        !isChannelUrlManuallyEdited
+                      ) {
+                        nextChannelUrl = "";
+                      }
+                      setFormData({
+                        ...formData,
+                        platform: newPlatform,
+                        channel_url: nextChannelUrl,
+                      });
+                    }}
                     options={PLATFORMS.map((p) => ({
                       value: p.value,
                       label: p.label,
@@ -542,8 +579,22 @@ export default function KolsClient({ initialKols }: KolsClientProps) {
                   <input
                     type="url"
                     value={formData.channel_url || ""}
-                    onChange={(e) => setFormData({ ...formData, channel_url: e.target.value })}
-                    placeholder="https://tiktok.com/@..."
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setIsChannelUrlManuallyEdited(
+                        val.trim() !== "" &&
+                          !(
+                            formData.platform === "tiktok" &&
+                            val.trim() === buildTikTokUrl(formData.username)
+                          )
+                      );
+                      setFormData({ ...formData, channel_url: val });
+                    }}
+                    placeholder={
+                      formData.platform === "tiktok"
+                        ? "https://www.tiktok.com/@..."
+                        : "https://..."
+                    }
                     className="w-full px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm"
                   />
                 </div>

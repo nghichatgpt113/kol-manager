@@ -1,6 +1,6 @@
 import PlatformIcon from "@/components/icons/platform-icon";
 
-const PLATFORM_TABS: { label: string; platform?: string }[] = [
+const PLATFORMS: { label: string; platform?: string }[] = [
   { label: "Tất cả" },
   { label: "TikTok", platform: "tiktok" },
   { label: "Facebook", platform: "facebook" },
@@ -12,85 +12,89 @@ const PLATFORM_TABS: { label: string; platform?: string }[] = [
 
 export default function KolsLoading() {
   return (
-    <div className="space-y-4 pb-24">
-
-      {/* Filter & Search Bar - Static Shell */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xs">
+    <div className="space-y-4 px-3 sm:px-5 py-3 pb-24">
+      {/* Filter & Search Bar — Static Shell */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white dark:bg-[#111218] p-3 rounded-xl border border-zinc-200/80 dark:border-white/[0.08] shadow-xs">
         <div className="relative flex-1">
           <svg
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400"
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
           <input
             type="text"
             readOnly
             placeholder="Tìm theo username, tên hiển thị, ngành hàng, SĐT..."
-            className="w-full pl-10 pr-4 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-sm focus:outline-hidden"
+            className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-zinc-50 dark:bg-white/[0.04] border border-zinc-200/80 dark:border-white/[0.08] text-xs focus:outline-none text-zinc-900 dark:text-zinc-100 placeholder-zinc-400"
           />
         </div>
 
-        {/* Platform Tabs - Static Shell */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
-          {PLATFORM_TABS.map((item, idx) => (
+        {/* Platform Tabs — Static Shell */}
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+          {PLATFORMS.map((item, idx) => (
             <span
               key={item.label}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap cursor-default ${
-                  idx === 0
-                    ? "bg-indigo-50 text-indigo-700 border border-indigo-200/90 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800/80 shadow-2xs"
-                    : "text-zinc-600 dark:text-zinc-400 border border-transparent"
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap cursor-default ${
+                idx === 0
+                  ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 font-semibold shadow-2xs"
+                  : "text-zinc-600 dark:text-zinc-400"
               }`}
             >
               {item.platform && <PlatformIcon platform={item.platform} size="xs" />}
-              {item.label}
+              <span>{item.label}</span>
             </span>
           ))}
         </div>
       </div>
 
-      {/* Table Container - Exact Static Table Shell with Skeletons inside tbody ONLY */}
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs">
+      {/* Table Container — Static thead with Skeletons inside tbody ONLY */}
+      <div className="bg-white dark:bg-[#111218] rounded-xl border border-zinc-200/80 dark:border-white/[0.08] overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800 text-xs text-zinc-500 uppercase tracking-wider font-semibold">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-zinc-50/70 dark:bg-white/[0.02] border-b border-zinc-200/70 dark:border-white/[0.06] text-[11px] text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-semibold">
               <tr>
-                <th className="px-6 py-3.5">Nhà sáng tạo</th>
-                <th className="px-6 py-3.5">Nền tảng</th>
-                <th className="px-6 py-3.5">Người theo dõi</th>
-                <th className="px-6 py-3.5">Ngành hàng</th>
-                <th className="px-6 py-3.5">Liên hệ</th>
-                <th className="px-6 py-3.5 text-right">Thao tác</th>
+                <th className="px-4 py-3">Nhà sáng tạo</th>
+                <th className="px-4 py-3">Nền tảng</th>
+                <th className="px-4 py-3">Người theo dõi</th>
+                <th className="px-4 py-3">Ngành hàng</th>
+                <th className="px-4 py-3">Liên hệ</th>
+                <th className="px-4 py-3 text-right">Thao tác</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-              {[1, 2, 3, 4, 5].map((i) => (
+            <tbody className="divide-y divide-zinc-200/60 dark:divide-white/[0.06]">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
                 <tr key={i} className="animate-pulse">
-                  <td className="px-6 py-4">
-                    <div className="space-y-1.5">
-                      <div className="h-4 w-32 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                      <div className="h-3 w-20 bg-zinc-100 dark:bg-zinc-850 rounded" />
+                  <td className="px-4 py-3">
+                    <div className="space-y-1">
+                      <div className="h-3.5 w-32 bg-zinc-200/80 dark:bg-white/[0.08] rounded" />
+                      <div className="h-3 w-20 bg-zinc-100 dark:bg-white/[0.04] rounded font-mono" />
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="h-5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded-full" />
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <div className="h-5 w-16 bg-zinc-200/70 dark:bg-white/[0.06] rounded-full" />
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="h-4 w-14 bg-zinc-200 dark:bg-zinc-800 rounded" />
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <div className="h-4 w-14 bg-zinc-200/70 dark:bg-white/[0.06] rounded" />
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="h-5 w-24 bg-zinc-100 dark:bg-zinc-800 rounded" />
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <div className="h-5 w-20 bg-zinc-100 dark:bg-white/[0.04] rounded-md" />
                   </td>
-                  <td className="px-6 py-4 space-y-1">
-                    <div className="h-3 w-24 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                    <div className="h-3 w-20 bg-zinc-100 dark:bg-zinc-850 rounded" />
+                  <td className="px-4 py-3 space-y-1">
+                    <div className="h-3 w-24 bg-zinc-200/70 dark:bg-white/[0.06] rounded" />
+                    <div className="h-3 w-20 bg-zinc-100 dark:bg-white/[0.04] rounded" />
                   </td>
-                  <td className="px-6 py-4 text-right whitespace-nowrap">
+                  <td className="px-4 py-3 text-right whitespace-nowrap">
                     <div className="flex items-center justify-end gap-2">
-                      <div className="h-6 w-10 bg-zinc-100 dark:bg-zinc-800 rounded-lg" />
-                      <div className="h-6 w-10 bg-zinc-100 dark:bg-zinc-800 rounded-lg" />
+                      <div className="h-6 w-10 bg-zinc-100 dark:bg-white/[0.04] rounded-lg" />
+                      <div className="h-6 w-10 bg-zinc-100 dark:bg-white/[0.04] rounded-lg" />
                     </div>
                   </td>
                 </tr>

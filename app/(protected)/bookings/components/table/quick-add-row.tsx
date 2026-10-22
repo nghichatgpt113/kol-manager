@@ -6,7 +6,6 @@ import type { Product } from "@/lib/types/product";
 import type { Campaign } from "@/lib/types/campaign";
 import type { BookingStatus, CreateBookingInput } from "@/lib/types/booking";
 import type { ColumnId } from "../types";
-import { formatVND } from "../types";
 import CustomSelect, { type SelectOption } from "@/components/ui/custom-select";
 import DatePicker from "@/components/ui/date-picker";
 import SearchableKolSelect from "./searchable-kol-select";
@@ -22,10 +21,10 @@ interface QuickAddRowProps {
 }
 
 const CONTENT_TYPES: SelectOption[] = [
-  { value: "Review sản phẩm", label: "Review sản phẩm 🎬" },
-  { value: "Tài trợ video", label: "Tài trợ video 🎁" },
-  { value: "Livestream", label: "Livestream 📡" },
-  { value: "Story / Reels", label: "Story / Reels 📸" },
+  { value: "Review sản phẩm", label: "Review sản phẩm" },
+  { value: "Tài trợ video", label: "Tài trợ video" },
+  { value: "Livestream", label: "Livestream" },
+  { value: "Story / Reels", label: "Story / Reels" },
 ];
 
 const STAGES: BookingStatus[] = [
@@ -155,25 +154,22 @@ export default function QuickAddRow({
 
   return (
     <tr
-      className="bg-indigo-50/70 dark:bg-indigo-950/30 border-y-2 border-indigo-500/50 animate-in fade-in duration-150 transition-colors"
+      className="bg-indigo-50/50 dark:bg-indigo-950/20 border-y-2 border-indigo-500/40 animate-in fade-in duration-100 transition-colors"
       onKeyDown={handleKeyDown}
     >
       {/* 1. Checkbox column indicator */}
-      <td className="py-3 px-3 text-center align-middle">
+      <td className="py-1 px-2 text-center align-middle w-9">
         <span
-          title="Hàng nhập liệu nhanh (Nhấn Enter để tạo, Esc để đóng)"
-          className="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-indigo-600 text-white text-xs font-bold shadow-xs cursor-default"
+          title="Hàng nhập liệu nhanh (Enter: Tạo, Esc: Đóng)"
+          className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-indigo-600 text-white text-[11px] font-bold shadow-2xs cursor-default"
         >
-          ⚡
+          +
         </span>
       </td>
 
-      {/* 2. Code & Content Type (CustomSelect) */}
+      {/* 2. Code & Content Type */}
       {visibleColumns.includes("code") && (
-        <td className="py-2.5 px-3 align-middle whitespace-nowrap min-w-[150px]">
-          <span className="text-[10px] font-bold text-indigo-700 dark:text-indigo-300 uppercase tracking-wider block mb-1">
-            Mới (Auto)
-          </span>
+        <td className="py-1 px-2 align-middle w-[110px] whitespace-nowrap">
           <CustomSelect
             size="sm"
             options={CONTENT_TYPES}
@@ -183,50 +179,45 @@ export default function QuickAddRow({
         </td>
       )}
 
-      {/* 3. KOL Searchable Selection */}
+      {/* 3. KOL Selection */}
       {visibleColumns.includes("kol") && (
-        <td className="py-2.5 px-3 align-middle min-w-[220px]">
+        <td className="py-1 px-2 align-middle min-w-[140px]">
           <SearchableKolSelect
             kols={kols}
             value={kolId}
             onChange={setKolId}
-            placeholder="Tìm & chọn KOL..."
+            placeholder="Chọn KOL..."
           />
-          {selectedKol?.contact_phone && (
-            <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono mt-1 block truncate">
-              📞 {selectedKol.contact_phone}
-            </span>
-          )}
         </td>
       )}
 
-      {/* 4. Product & Campaign (CustomSelect with search) */}
+      {/* 4. Product & Campaign */}
       {visibleColumns.includes("product") && (
-        <td className="py-2.5 px-3 align-middle min-w-[200px]">
-          <CustomSelect
-            size="sm"
-            searchable
-            options={productOptions}
-            value={productId}
-            onChange={setProductId}
-            placeholder="(Chưa chọn SP)"
-          />
-          <div className="mt-1.5">
+        <td className="py-1 px-2 align-middle min-w-[150px]">
+          <div className="grid grid-cols-2 gap-1 min-w-[200px]">
+            <CustomSelect
+              size="sm"
+              searchable
+              options={productOptions}
+              value={productId}
+              onChange={setProductId}
+              placeholder="Sản phẩm..."
+            />
             <CustomSelect
               size="sm"
               searchable
               options={campaignOptions}
               value={campaignId}
               onChange={setCampaignId}
-              placeholder="(Không gán chiến dịch)"
+              placeholder="Chiến dịch..."
             />
           </div>
         </td>
       )}
 
-      {/* 5. Status (CustomSelect with colored dots) */}
+      {/* 5. Status */}
       {visibleColumns.includes("status") && (
-        <td className="py-2.5 px-3 align-middle min-w-[160px]">
+        <td className="py-1 px-2 align-middle w-[120px]">
           <CustomSelect
             size="sm"
             options={statusOptions}
@@ -238,97 +229,85 @@ export default function QuickAddRow({
 
       {/* 6. Logistics */}
       {visibleColumns.includes("logistics") && (
-        <td className="py-2.5 px-3 align-middle text-xs text-zinc-400 italic">
+        <td className="py-1 px-2 align-middle text-[11px] text-zinc-400 italic">
           (Cập nhật sau)
         </td>
       )}
 
-      {/* 7. Deadline (DatePicker with Vietnamese calendar) */}
+      {/* 7. Deadline */}
       {visibleColumns.includes("deadline") && (
-        <td className="py-2.5 px-3 align-middle min-w-[140px]">
+        <td className="py-1 px-2 align-middle w-[105px]">
           <DatePicker
             size="sm"
-            placeholder="Hạn lên bài"
+            placeholder="Hạn bài"
             value={deadline}
             onChange={setDeadline}
           />
         </td>
       )}
 
-      {/* 8. Fee & Commission */}
+      {/* 8. Fee */}
       {visibleColumns.includes("fee") && (
-        <td className="py-2.5 px-3 align-middle w-[140px]">
-          <div className="relative">
-            <input
-              type="number"
-              min={0}
-              step={50000}
-              value={fee}
-              onChange={(e) => setFee(e.target.value)}
-              placeholder="0 đ"
-              className="w-full text-xs font-mono font-bold bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-2.5 py-1.5 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 shadow-2xs"
-            />
-          </div>
-          {fee && Number(fee) > 0 ? (
-            <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono font-semibold block mt-0.5 truncate">
-              {formatVND(Number(fee))}
-            </span>
-          ) : (
-            <span className="text-[10px] text-zinc-400 block mt-0.5">0 đ (Miễn phí)</span>
-          )}
+        <td className="py-1 px-2 align-middle w-[100px]">
+          <input
+            type="number"
+            min={0}
+            step={50000}
+            value={fee}
+            onChange={(e) => setFee(e.target.value)}
+            placeholder="Phí (đ)"
+            className="w-full h-8 text-xs font-mono bg-white dark:bg-[#111218] border border-zinc-200/80 dark:border-white/[0.08] rounded-lg px-2 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-2xs"
+          />
         </td>
       )}
 
       {/* 9. Payment */}
       {visibleColumns.includes("payment") && (
-        <td className="py-2.5 px-3 align-middle text-xs">
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-500">
-            Chưa thanh toán
+        <td className="py-1 px-2 align-middle w-[105px] text-xs whitespace-nowrap">
+          <span className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-zinc-100 dark:bg-white/[0.06] text-zinc-500 border border-zinc-200/60 dark:border-white/[0.06]">
+            Chưa trả
           </span>
         </td>
       )}
 
       {/* 10. Recipient */}
       {visibleColumns.includes("recipient") && (
-        <td className="py-2.5 px-3 align-middle text-xs max-w-[180px]">
+        <td className="py-1 px-2 align-middle text-xs min-w-[130px] max-w-[160px]">
           <span className="text-zinc-700 dark:text-zinc-300 truncate block font-medium">
             {selectedKol?.display_name || selectedKol?.username || "—"}
-          </span>
-          <span className="text-[10px] text-zinc-400 block truncate">
-            {selectedKol?.address || "Lấy từ hồ sơ KOL"}
           </span>
         </td>
       )}
 
       {/* 11. Performance */}
       {visibleColumns.includes("performance") && (
-        <td className="py-2.5 px-3 align-middle text-xs text-zinc-400 text-center">
+        <td className="py-1 px-2 align-middle text-xs text-zinc-400 text-center w-[85px]">
           —
         </td>
       )}
 
       {/* 12. Notes */}
       {visibleColumns.includes("notes") && (
-        <td className="py-2.5 px-3 align-middle min-w-[150px]">
+        <td className="py-1 px-2 align-middle min-w-[110px]">
           <input
             type="text"
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="Ghi chú nhanh..."
-            className="w-full text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-2.5 py-1.5 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600 shadow-2xs"
+            placeholder="Ghi chú..."
+            className="w-full h-8 text-xs bg-white dark:bg-[#111218] border border-zinc-200/80 dark:border-white/[0.08] rounded-lg px-2 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-2xs"
           />
         </td>
       )}
 
       {/* 13. Actions */}
       {visibleColumns.includes("actions") && (
-        <td className="py-2.5 px-3 align-middle text-right whitespace-nowrap">
-          <div className="flex items-center justify-end gap-1.5">
+        <td className="py-1 px-2 align-middle w-[70px] text-right whitespace-nowrap">
+          <div className="flex items-center justify-end gap-1">
             <button
               type="button"
               disabled={isSubmitting}
               onClick={() => handleSubmit()}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white text-xs font-semibold shadow-xs transition active:scale-95 cursor-pointer disabled:opacity-50"
+              className="h-8 inline-flex items-center gap-1 px-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-xs transition active:scale-95 cursor-pointer disabled:opacity-50"
               title="Lưu dòng này (Enter)"
             >
               {isSubmitting ? (
@@ -346,10 +325,10 @@ export default function QuickAddRow({
             <button
               type="button"
               onClick={onCancel}
-              className="p-1.5 rounded-xl text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
-              title="Đóng nhập nhanh (Esc)"
+              className="h-8 w-8 inline-flex items-center justify-center rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/[0.06] transition cursor-pointer"
+              title="Đóng (Esc)"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>

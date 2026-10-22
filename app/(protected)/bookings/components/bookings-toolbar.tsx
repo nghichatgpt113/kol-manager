@@ -81,13 +81,13 @@ export default function BookingsToolbar({
   onClearSelection,
 }: BookingsToolbarProps) {
   return (
-    <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs space-y-3">
-      {/* Top row: Search, View Mode Toggle, Quick Add toggle, Column Customizer */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+    <div className="px-3 py-2 sm:px-4 sm:py-2 bg-white dark:bg-zinc-900 border-b border-zinc-200/90 dark:border-zinc-800 space-y-2">
+      {/* Top row: Search, Table Tools, Quick Add, Column Customizer, View Mode */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
         {/* Search Box */}
-        <div className="relative flex-1">
+        <div className="relative flex-1 max-w-lg">
           <svg
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400"
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -99,18 +99,18 @@ export default function BookingsToolbar({
             placeholder="Tìm theo mã booking, KOL, sản phẩm, mã vận đơn, người nhận..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-xl text-sm bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/80 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100 text-zinc-900 dark:text-zinc-50 placeholder-zinc-400"
+            className="w-full h-8 pl-8 pr-3 rounded-lg text-xs bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-200 dark:border-zinc-700/80 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 shadow-2xs"
           />
         </div>
 
         {/* View Mode & Table Tools */}
-        <div className="flex items-center gap-2 self-start md:self-auto">
+        <div className="flex items-center gap-1.5 self-start md:self-auto shrink-0">
           {/* Quick Add Row Toggle (Only in table mode) */}
           {viewMode === "table" && (
             <button
               type="button"
               onClick={onToggleQuickAdd}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-2xs ${
+              className={`h-8 inline-flex items-center gap-1.5 px-2.5 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-2xs ${
                 showQuickAdd
                   ? "bg-indigo-600 text-white shadow-xs"
                   : "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/60"
@@ -135,11 +135,11 @@ export default function BookingsToolbar({
           )}
 
           {/* View Mode Toggle */}
-          <div className="flex items-center p-1 rounded-xl bg-zinc-100 dark:bg-zinc-800/80">
+          <div className="h-8 flex items-center p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/80">
             <button
               type="button"
               onClick={() => onViewModeChange("table")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`h-7 flex items-center gap-1 px-2.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
                 viewMode === "table"
                   ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 shadow-xs"
                   : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
@@ -148,12 +148,12 @@ export default function BookingsToolbar({
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              Bảng dữ liệu
+              <span>Bảng</span>
             </button>
             <button
               type="button"
               onClick={() => onViewModeChange("kanban")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`h-7 flex items-center gap-1 px-2.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
                 viewMode === "kanban"
                   ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 shadow-xs"
                   : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
@@ -162,12 +162,12 @@ export default function BookingsToolbar({
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
               </svg>
-              Kanban
+              <span>Kanban</span>
             </button>
             <button
               type="button"
               onClick={() => onViewModeChange("analytics")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`h-7 flex items-center gap-1 px-2.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
                 viewMode === "analytics"
                   ? "bg-white dark:bg-zinc-900 text-indigo-600 dark:text-indigo-400 shadow-xs font-bold"
                   : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
@@ -176,20 +176,23 @@ export default function BookingsToolbar({
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
-              Tiến độ & ROI
+              <span>Tiến độ</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* Second row: Dropdown filters & Quick Deadline pills */}
-      <div className="flex flex-wrap items-center gap-2.5 pt-1 border-t border-zinc-100 dark:border-zinc-800/80">
-        <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Bộ lọc:</span>
+      <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-zinc-100 dark:border-zinc-800/80">
+        <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider shrink-0">
+          Bộ lọc:
+        </span>
 
         {/* Status filter (Table mode only) */}
         {viewMode === "table" && (
-          <div className="min-w-[180px]">
+          <div className="min-w-[150px] max-w-[170px]">
             <CustomSelect
+              size="sm"
               value={statusFilter}
               onChange={(val) => onStatusFilterChange(val as BookingStatus | "all")}
               options={[
@@ -205,8 +208,9 @@ export default function BookingsToolbar({
         )}
 
         {/* Campaign Filter */}
-        <div className="min-w-[170px]">
+        <div className="min-w-[145px] max-w-[170px]">
           <CustomSelect
+            size="sm"
             value={campaignFilter}
             onChange={(val) => onCampaignFilterChange(val)}
             options={[
@@ -220,8 +224,9 @@ export default function BookingsToolbar({
         </div>
 
         {/* Payment Filter */}
-        <div className="min-w-[170px]">
+        <div className="min-w-[140px] max-w-[160px]">
           <CustomSelect
+            size="sm"
             value={paymentFilter}
             onChange={(val) => onPaymentFilterChange(val as PaymentStatus | "all")}
             options={[
@@ -234,11 +239,11 @@ export default function BookingsToolbar({
         </div>
 
         {/* Quick Deadline Pills */}
-        <div className="flex items-center gap-1 p-0.5 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/60 dark:border-zinc-700/60">
+        <div className="h-8 flex items-center gap-0.5 p-0.5 rounded-lg bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200/60 dark:border-zinc-700/60 shrink-0">
           <button
             type="button"
             onClick={() => onDeadlineFilterChange("all")}
-            className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+            className={`h-7 px-2.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
               deadlineFilter === "all"
                 ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-2xs"
                 : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
@@ -249,19 +254,19 @@ export default function BookingsToolbar({
           <button
             type="button"
             onClick={() => onDeadlineFilterChange("urgent")}
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+            className={`h-7 inline-flex items-center gap-1.5 px-2.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
               deadlineFilter === "urgent"
                 ? "bg-amber-500 text-white shadow-2xs"
                 : "text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40"
             }`}
           >
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-            Sắp đến hạn (48h)
+            48h
           </button>
           <button
             type="button"
             onClick={() => onDeadlineFilterChange("overdue")}
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+            className={`h-7 inline-flex items-center gap-1.5 px-2.5 rounded-md text-xs font-semibold transition-all cursor-pointer ${
               deadlineFilter === "overdue"
                 ? "bg-rose-600 text-white shadow-2xs"
                 : "text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40"
@@ -276,9 +281,9 @@ export default function BookingsToolbar({
           <button
             type="button"
             onClick={onResetFilters}
-            className="inline-flex items-center gap-1 text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-semibold px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 transition ml-auto cursor-pointer"
+            className="h-8 inline-flex items-center gap-1 text-xs text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 font-semibold px-2 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 transition ml-auto cursor-pointer shrink-0"
           >
-            <span>✕ Đặt lại bộ lọc</span>
+            <span>✕ Đặt lại</span>
           </button>
         )}
       </div>

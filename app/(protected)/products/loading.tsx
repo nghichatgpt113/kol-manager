@@ -1,7 +1,6 @@
 export default function ProductsLoading() {
   return (
-    <div className="space-y-4 pb-24">
-
+    <div className="space-y-4 px-3 sm:px-5 py-3 pb-24">
       {/* Filter & Search Bar - Static Shell */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xs">
         <div className="relative flex-1">
@@ -11,7 +10,12 @@ export default function ProductsLoading() {
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
           <input
             type="text"
@@ -56,12 +60,12 @@ export default function ProductsLoading() {
                   <td className="px-6 py-4">
                     <div className="space-y-1.5">
                       <div className="h-4 w-44 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                      <div className="h-3 w-28 bg-zinc-100 dark:bg-zinc-850 rounded" />
+                      <div className="h-3 w-28 bg-zinc-100 dark:bg-zinc-800/50 rounded" />
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap space-y-1">
                     <div className="h-3.5 w-24 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                    <div className="h-3 w-16 bg-zinc-100 dark:bg-zinc-850 rounded" />
+                    <div className="h-3 w-16 bg-zinc-100 dark:bg-zinc-800/50 rounded" />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="h-4 w-20 bg-zinc-200 dark:bg-zinc-800 rounded" />

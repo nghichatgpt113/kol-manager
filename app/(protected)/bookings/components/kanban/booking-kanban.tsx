@@ -61,15 +61,33 @@ const PAYMENT_CONFIG: Record<
   },
 };
 
-function getDeadlineStatus(expectedPostAt: string | null) {
+const RESOLVED_STATUSES: BookingStatus[] = ["posted", "completed", "cancelled"];
+
+function getDeadlineStatus(expectedPostAt: string | null, status?: BookingStatus) {
   if (!expectedPostAt) {
     return { isOverdue: false, isUrgent: false, badgeClass: "", label: null };
   }
+  if (status && RESOLVED_STATUSES.includes(status)) {
+    return {
+      isOverdue: false,
+      isUrgent: false,
+      badgeClass: "text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/80",
+      label: null,
+    };
+  }
+  const [y, m, d] = expectedPostAt.split("T")[0].split("-").map(Number);
+  if (!y || !m || !d) {
+    return {
+      isOverdue: false,
+      isUrgent: false,
+      badgeClass: "text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/80",
+      label: null,
+    };
+  }
   const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  const target = new Date(expectedPostAt);
-  target.setHours(0, 0, 0, 0);
-  const diffDays = Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const target = new Date(y, m - 1, d);
+  const diffDays = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
   if (diffDays < 0) {
     return {
@@ -79,8 +97,8 @@ function getDeadlineStatus(expectedPostAt: string | null) {
       label: `Trễ ${Math.abs(diffDays)} ngày`,
     };
   }
-  if (diffDays <= 2) {
-    const label = diffDays === 0 ? "Hôm nay" : diffDays === 1 ? "Ngày mai" : "Còn 2 ngày";
+  if (diffDays <= 3) {
+    const label = diffDays === 0 ? "Hôm nay" : diffDays === 1 ? "Ngày mai" : `Còn ${diffDays} ngày`;
     return {
       isOverdue: false,
       isUrgent: true,
@@ -212,7 +230,7 @@ export default function BookingKanban({
                   </div>
                 ) : (
                   stageBookings.map((b) => {
-                    const deadline = getDeadlineStatus(b.expected_post_at);
+                    const deadline = getDeadlineStatus(b.expected_post_at, b.status);
                     const isDraggingThis = draggingBookingId === b.id;
                     const paymentCfg = PAYMENT_CONFIG[b.payment_status] || PAYMENT_CONFIG.unpaid;
                     const remainingPayment = Math.max(

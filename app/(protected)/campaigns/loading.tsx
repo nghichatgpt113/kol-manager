@@ -8,8 +8,7 @@ const STATUS_FILTER_LABELS = [
 
 export default function CampaignsLoading() {
   return (
-    <div className="space-y-4 pb-24">
-
+    <div className="space-y-4 px-3 sm:px-5 py-3 pb-24">
       {/* Metric Cards - Static Labels with pulse only for values */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
@@ -100,11 +99,11 @@ export default function CampaignsLoading() {
                 <tr key={i} className="animate-pulse">
                   <td className="py-4 px-4 space-y-1.5">
                     <div className="h-4 w-40 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                    <div className="h-3 w-28 bg-zinc-100 dark:bg-zinc-850 rounded" />
+                    <div className="h-3 w-28 bg-zinc-100 dark:bg-zinc-800/50 rounded" />
                   </td>
                   <td className="py-4 px-4 whitespace-nowrap space-y-1">
                     <div className="h-4 w-28 bg-zinc-200 dark:bg-zinc-800 rounded" />
-                    <div className="h-3 w-36 bg-zinc-100 dark:bg-zinc-850 rounded" />
+                    <div className="h-3 w-36 bg-zinc-100 dark:bg-zinc-800/50 rounded" />
                   </td>
                   <td className="py-4 px-4 whitespace-nowrap">
                     <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-800 rounded" />

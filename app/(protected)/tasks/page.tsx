@@ -1,14 +1,10 @@
 import { getTasks } from "@/lib/services/tasks";
-import { getBookings } from "@/lib/services/bookings";
 import TasksClient from "./tasks-client";
 
 export const dynamic = "force-dynamic";
 
 export default async function TasksPage() {
-  const [tasksRes, bookingsRes] = await Promise.all([
-    getTasks(),
-    getBookings(),
-  ]);
+  const tasksRes = await getTasks();
 
   if (tasksRes.error) {
     return (
@@ -19,10 +15,5 @@ export default async function TasksPage() {
     );
   }
 
-  return (
-    <TasksClient
-      initialTasks={tasksRes.data ?? []}
-      bookings={bookingsRes.data ?? []}
-    />
-  );
+  return <TasksClient initialTasks={tasksRes.data ?? []} />;
 }

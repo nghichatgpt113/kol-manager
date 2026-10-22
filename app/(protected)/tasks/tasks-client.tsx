@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useTransition } from "react";
+import { useState, useEffect, useMemo, useTransition } from "react";
 import type { Task, TaskType } from "@/lib/types/task";
 import {
   TASK_TYPE_LABELS,
@@ -15,49 +15,50 @@ import {
   cancelTask,
   deleteTask,
 } from "@/lib/services/tasks";
+import { getBookings } from "@/lib/services/bookings";
 import CustomSelect, { type SelectOption } from "@/components/ui/custom-select";
 import FloatingActionBar from "@/components/ui/floating-action-bar";
 
 interface TasksClientProps {
   initialTasks: Task[];
-  bookings: Booking[];
+  initialBookings?: Booking[];
 }
 
 const TYPE_BADGE_STYLES: Record<TaskType, { bg: string; text: string; border: string }> = {
   sample_delivery_check: {
-    bg: "bg-blue-50 dark:bg-blue-950/40",
+    bg: "bg-blue-50 dark:bg-blue-950/30",
     text: "text-blue-700 dark:text-blue-300",
-    border: "border-blue-200 dark:border-blue-800/60",
+    border: "border-blue-200/80 dark:border-blue-900/40",
   },
   draft_review: {
-    bg: "bg-purple-50 dark:bg-purple-950/40",
+    bg: "bg-purple-50 dark:bg-purple-950/30",
     text: "text-purple-700 dark:text-purple-300",
-    border: "border-purple-200 dark:border-purple-800/60",
+    border: "border-purple-200/80 dark:border-purple-900/40",
   },
   video_reminder: {
-    bg: "bg-amber-50 dark:bg-amber-950/40",
+    bg: "bg-amber-50 dark:bg-amber-950/30",
     text: "text-amber-700 dark:text-amber-300",
-    border: "border-amber-200 dark:border-amber-800/60",
+    border: "border-amber-200/80 dark:border-amber-900/40",
   },
   get_air_link: {
-    bg: "bg-sky-50 dark:bg-sky-950/40",
+    bg: "bg-sky-50 dark:bg-sky-950/30",
     text: "text-sky-700 dark:text-sky-300",
-    border: "border-sky-200 dark:border-sky-800/60",
+    border: "border-sky-200/80 dark:border-sky-900/40",
   },
   get_ads_code: {
-    bg: "bg-indigo-50 dark:bg-indigo-950/40",
+    bg: "bg-indigo-50 dark:bg-indigo-950/30",
     text: "text-indigo-700 dark:text-indigo-300",
-    border: "border-indigo-200 dark:border-indigo-800/60",
+    border: "border-indigo-200/80 dark:border-indigo-900/40",
   },
   payment: {
-    bg: "bg-emerald-50 dark:bg-emerald-950/40",
+    bg: "bg-emerald-50 dark:bg-emerald-950/30",
     text: "text-emerald-700 dark:text-emerald-300",
-    border: "border-emerald-200 dark:border-emerald-800/60",
+    border: "border-emerald-200/80 dark:border-emerald-900/40",
   },
   general: {
-    bg: "bg-zinc-100 dark:bg-zinc-800",
+    bg: "bg-zinc-100 dark:bg-white/[0.06]",
     text: "text-zinc-700 dark:text-zinc-300",
-    border: "border-zinc-200 dark:border-zinc-700",
+    border: "border-zinc-200/80 dark:border-white/[0.08]",
   },
 };
 
@@ -77,13 +78,28 @@ function formatDateTime(isoString: string): string {
 
 export default function TasksClient({
   initialTasks,
-  bookings,
+  initialBookings = [],
 }: TasksClientProps) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [bookings, setBookings] = useState<Booking[]>(initialBookings);
   const [activeFilter, setActiveFilter] = useState<
     "all" | "pending" | "completed" | "cancelled" | "overdue"
   >("all");
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Load bookings in background for Create/Edit modal dropdown without blocking initial Tasks table render
+  useEffect(() => {
+    let active = true;
+    if (initialBookings.length === 0) {
+      getBookings().then((res) => {
+        if (!active) return;
+        if (res.data) setBookings(res.data);
+      });
+    }
+    return () => {
+      active = false;
+    };
+  }, [initialBookings.length]);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -421,7 +437,7 @@ export default function TasksClient({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-3 sm:px-5 py-3 pb-24">
       {/* Toast Notification */}
       {toast && (
         <div
@@ -447,78 +463,62 @@ export default function TasksClient({
       )}
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Total Tasks */}
-        <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+        <div className="p-3.5 rounded-xl bg-white dark:bg-[#111218] border border-zinc-200/80 dark:border-white/[0.08] shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
               Tổng công việc
             </span>
-            <span className="p-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-              </svg>
-            </span>
+            <span className="w-2 h-2 rounded-full bg-zinc-400 opacity-70" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+          <div className="mt-2 text-2xl font-bold tracking-tight tabular-nums text-zinc-950 dark:text-zinc-50">
             {metrics.total}
           </div>
         </div>
 
         {/* Pending Tasks */}
-        <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+        <div className="p-3.5 rounded-xl bg-white dark:bg-[#111218] border border-zinc-200/80 dark:border-white/[0.08] shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-amber-600 dark:text-amber-400">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
               Chờ xử lý
             </span>
-            <span className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </span>
+            <span className="w-2 h-2 rounded-full bg-amber-500" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-amber-600 dark:text-amber-400">
+          <div className="mt-2 text-2xl font-bold tracking-tight tabular-nums text-amber-600 dark:text-amber-400">
             {metrics.pending}
           </div>
         </div>
 
         {/* Completed Tasks */}
-        <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+        <div className="p-3.5 rounded-xl bg-white dark:bg-[#111218] border border-zinc-200/80 dark:border-white/[0.08] shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
               Đã hoàn thành
             </span>
-            <span className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+          <div className="mt-2 text-2xl font-bold tracking-tight tabular-nums text-emerald-600 dark:text-emerald-400">
             {metrics.completed}
           </div>
         </div>
 
         {/* Overdue Tasks */}
-        <div className="p-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xs">
+        <div className="p-3.5 rounded-xl bg-white dark:bg-[#111218] border border-zinc-200/80 dark:border-white/[0.08] shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-rose-600 dark:text-rose-400">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400">
               Quá hạn
             </span>
-            <span className="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </span>
+            <span className="w-2 h-2 rounded-full bg-rose-500" />
           </div>
-          <div className="mt-2 text-2xl font-bold text-rose-600 dark:text-rose-400">
+          <div className="mt-2 text-2xl font-bold tracking-tight tabular-nums text-rose-600 dark:text-rose-400">
             {metrics.overdue}
           </div>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white dark:bg-[#111218] p-3 rounded-xl border border-zinc-200/80 dark:border-white/[0.08] shadow-xs">
         {/* Filter Tabs */}
         <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           {(
@@ -540,18 +540,18 @@ export default function TasksClient({
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveFilter(tab.id)}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition cursor-pointer ${
                   isActive
-                    ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
-                    : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800/60"
+                    ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 font-semibold shadow-2xs"
+                    : "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-white/[0.06]"
                 }`}
               >
                 <span>{tab.label}</span>
                 <span
-                  className={`text-[11px] px-1.5 py-0.2 rounded-md ${
+                  className={`text-[10px] tabular-nums font-mono px-1 py-0.2 rounded ${
                     isActive
-                      ? "bg-white/20 text-white dark:bg-zinc-900/20 dark:text-zinc-900"
-                      : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                      ? "bg-white/20 text-white dark:bg-zinc-950/20 dark:text-zinc-950"
+                      : "opacity-60"
                   }`}
                 >
                   {tab.count}
@@ -562,9 +562,9 @@ export default function TasksClient({
         </div>
 
         {/* Search Input */}
-        <div className="relative min-w-[240px]">
+        <div className="relative min-w-[220px]">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
@@ -573,13 +573,13 @@ export default function TasksClient({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Tìm theo tên, mã booking, KOL..."
-            className="w-full pl-9 pr-4 py-2 rounded-xl text-xs border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/20"
+            className="w-full pl-8 pr-3 py-1.5 rounded-lg text-xs border border-zinc-200/80 dark:border-white/[0.08] bg-zinc-50 dark:bg-white/[0.04] text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-white/20"
           />
           {searchTerm && (
             <button
               type="button"
               onClick={() => setSearchTerm("")}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-zinc-600 cursor-pointer"
+              className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-zinc-400 hover:text-zinc-600 cursor-pointer"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -618,20 +618,20 @@ export default function TasksClient({
           )}
         </div>
       ) : (
-        <div className="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-xs">
+        <div className="rounded-xl bg-white dark:bg-[#111218] border border-zinc-200/80 dark:border-white/[0.08] overflow-hidden shadow-xs">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-zinc-50/80 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider text-[11px]">
+              <thead className="bg-zinc-50/70 dark:bg-white/[0.02] border-b border-zinc-200/70 dark:border-white/[0.06] text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider text-[11px]">
                 <tr>
-                  <th className="py-3.5 px-4">Công việc</th>
-                  <th className="py-3.5 px-4">Loại</th>
-                  <th className="py-3.5 px-4">Hợp tác</th>
-                  <th className="py-3.5 px-4">Deadline</th>
-                  <th className="py-3.5 px-4">Trạng thái</th>
-                  <th className="py-3.5 px-4 text-right">Thao tác</th>
+                  <th className="py-3 px-4">Công việc</th>
+                  <th className="py-3 px-4">Loại</th>
+                  <th className="py-3 px-4">Hợp tác</th>
+                  <th className="py-3 px-4">Deadline</th>
+                  <th className="py-3 px-4">Trạng thái</th>
+                  <th className="py-3 px-4 text-right">Thao tác</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+              <tbody className="divide-y divide-zinc-200/60 dark:divide-white/[0.06]">
                 {filteredTasks.map((task) => {
                   const overdue = isTaskOverdue(task);
                   const typeStyle = TYPE_BADGE_STYLES[task.type] || TYPE_BADGE_STYLES.general;
@@ -639,31 +639,31 @@ export default function TasksClient({
                   return (
                     <tr
                       key={task.id}
-                      className="hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition-colors"
+                      className="hover:bg-zinc-50/60 dark:hover:bg-white/[0.02] transition-colors"
                     >
                       {/* Title & Notes */}
-                      <td className="py-4 px-4">
-                        <div className="font-semibold text-zinc-900 dark:text-zinc-100 text-sm">
+                      <td className="py-3 px-4">
+                        <div className="font-semibold text-zinc-900 dark:text-zinc-100 text-xs">
                           {task.title}
                         </div>
                         {task.notes && (
-                          <div className="mt-0.5 text-zinc-500 dark:text-zinc-400 text-xs line-clamp-1 max-w-xs">
+                          <div className="mt-0.5 text-zinc-500 dark:text-zinc-400 text-[11px] line-clamp-1 max-w-xs">
                             {task.notes}
                           </div>
                         )}
                       </td>
 
                       {/* Type Badge */}
-                      <td className="py-4 px-4 whitespace-nowrap">
+                      <td className="py-3 px-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium border ${typeStyle.bg} ${typeStyle.text} ${typeStyle.border}`}
+                          className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border ${typeStyle.bg} ${typeStyle.text} ${typeStyle.border}`}
                         >
                           {TASK_TYPE_LABELS[task.type] || task.type}
                         </span>
                       </td>
 
                       {/* Booking / KOL Context */}
-                      <td className="py-4 px-4 whitespace-nowrap">
+                      <td className="py-3 px-4 whitespace-nowrap">
                         {task.booking ? (
                           <div className="space-y-0.5">
                             <div className="font-mono text-zinc-900 dark:text-zinc-100 font-medium">
@@ -684,14 +684,14 @@ export default function TasksClient({
                       </td>
 
                       {/* Deadline & Overdue */}
-                      <td className="py-4 px-4 whitespace-nowrap">
+                      <td className="py-3 px-4 whitespace-nowrap">
                         <div className="space-y-1">
-                          <div className="font-medium text-zinc-900 dark:text-zinc-100">
+                          <div className="font-medium text-zinc-900 dark:text-zinc-100 tabular-nums">
                             {formatDateTime(task.due_at)}
                           </div>
                           {overdue && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-900/60">
-                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50">
+                              <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                               Quá hạn
                             </span>
                           )}

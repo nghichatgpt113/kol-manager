@@ -126,38 +126,25 @@ export default function SearchableKolSelect({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-900 border border-indigo-200 dark:border-indigo-800/80 hover:border-indigo-400 dark:hover:border-indigo-600 transition-colors shadow-2xs text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+        className="w-full h-8 flex items-center justify-between gap-1.5 px-2 rounded-lg bg-white dark:bg-[#111218] border border-zinc-200/80 dark:border-white/[0.08] hover:border-zinc-300 dark:hover:border-white/20 transition-colors shadow-2xs text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500"
       >
         {selectedKol ? (
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <div className="relative w-6 h-6 rounded-full bg-indigo-50 dark:bg-indigo-950 flex items-center justify-center text-[10px] font-bold text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 shrink-0">
-              {selectedKol.display_name
-                ? selectedKol.display_name.charAt(0).toUpperCase()
-                : selectedKol.username?.charAt(0).toUpperCase() || "?"}
-              <span className="absolute -bottom-0.5 -right-0.5">
-                <PlatformIcon platform={selectedKol.platform || "tiktok"} size="xs" />
-              </span>
-            </div>
-            <div className="min-w-0 flex-1 truncate">
-              <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate block">
-                @{selectedKol.username}
-              </span>
-              <span className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate block">
-                {selectedKol.display_name || selectedKol.contact_phone || selectedKol.platform}
-              </span>
-            </div>
+          <div className="flex items-center gap-1.5 min-w-0 flex-1">
+            <span className="shrink-0">
+              <PlatformIcon platform={selectedKol.platform || "tiktok"} size="xs" />
+            </span>
+            <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+              @{selectedKol.username}
+            </span>
           </div>
         ) : (
-          <span className="text-xs text-zinc-400 italic flex items-center gap-1.5">
-            <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
+          <span className="text-xs text-zinc-400 italic truncate">
             {placeholder}
           </span>
         )}
 
         <svg
-          className={`w-3.5 h-3.5 text-zinc-400 shrink-0 transition-transform ${
+          className={`w-3 h-3 text-zinc-400 shrink-0 transition-transform ${
             isOpen ? "rotate-180" : ""
           }`}
           fill="none"
@@ -170,7 +157,7 @@ export default function SearchableKolSelect({
 
       {/* Searchable Dropdown Popover */}
       {isOpen && (
-        <div className="absolute left-0 top-full mt-1.5 w-72 sm:w-80 z-50 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+        <div className="absolute left-0 top-full mt-1 w-72 sm:w-80 z-[100] rounded-xl bg-white dark:bg-[#111218] border border-zinc-200/90 dark:border-white/[0.12] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-100">
           {/* Search Header */}
           <div className="p-2 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-800/40">
             <div className="relative flex items-center">

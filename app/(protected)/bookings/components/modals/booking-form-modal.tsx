@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { Booking, CreateBookingInput, PaymentStatus } from "@/lib/types/booking";
 import type { Kol } from "@/lib/types/kol";
 import type { Product } from "@/lib/types/product";
@@ -30,6 +30,68 @@ interface BookingFormModalProps {
   isPending: boolean;
 }
 
+function createInitialFormData(
+  editingBooking: Booking | null,
+  kols: Kol[],
+  products: Product[],
+  campaigns: Campaign[]
+): CreateBookingInput {
+  if (editingBooking) {
+    return {
+      kol_id: editingBooking.kol_id,
+      product_id: editingBooking.product_id || "",
+      campaign_id: editingBooking.campaign_id || "",
+      code: editingBooking.code || "",
+      content_type: editingBooking.content_type || "Review sản phẩm",
+      booking_fee: Number(editingBooking.booking_fee) || 0,
+      commission_rate: Number(editingBooking.commission_rate) || 0,
+      ads_rate: Number(editingBooking.ads_rate) || 0,
+      status: editingBooking.status,
+      sample_product_notes: editingBooking.sample_product_notes || "",
+      sample_sent_at: editingBooking.sample_sent_at ? editingBooking.sample_sent_at.slice(0, 10) : "",
+      sample_expected_at: editingBooking.sample_expected_at || "",
+      sample_delivered_at: editingBooking.sample_delivered_at ? editingBooking.sample_delivered_at.slice(0, 10) : "",
+      sample_tracking_code: editingBooking.sample_tracking_code || "",
+      sample_carrier: editingBooking.sample_carrier || "GHTK",
+      recipient_name: editingBooking.recipient_name || "",
+      recipient_phone: editingBooking.recipient_phone || "",
+      recipient_address: editingBooking.recipient_address || "",
+      video_reminder_at: editingBooking.video_reminder_at || "",
+      expected_post_at: editingBooking.expected_post_at || "",
+      payment_status: editingBooking.payment_status,
+      paid_amount: Number(editingBooking.paid_amount) || 0,
+      notes: editingBooking.notes || "",
+    };
+  }
+  const firstKol = kols[0];
+  const firstProduct = products[0];
+  return {
+    kol_id: firstKol?.id || "",
+    product_id: firstProduct?.id || "",
+    campaign_id: campaigns[0]?.id || "",
+    code: "",
+    content_type: "Review sản phẩm",
+    booking_fee: 0,
+    commission_rate: firstProduct?.default_commission_rate || 0,
+    ads_rate: firstProduct?.default_ads_rate || 0,
+    status: "contacted",
+    sample_product_notes: "",
+    sample_sent_at: "",
+    sample_expected_at: "",
+    sample_delivered_at: "",
+    sample_tracking_code: "",
+    sample_carrier: "GHTK",
+    recipient_name: firstKol?.display_name || firstKol?.username || "",
+    recipient_phone: firstKol?.contact_phone || "",
+    recipient_address: firstKol?.address || "",
+    video_reminder_at: "",
+    expected_post_at: "",
+    payment_status: "unpaid",
+    paid_amount: 0,
+    notes: "",
+  };
+}
+
 export default function BookingFormModal({
   isOpen,
   onClose,
@@ -40,92 +102,11 @@ export default function BookingFormModal({
   onSubmit,
   isPending,
 }: BookingFormModalProps) {
-  const [formData, setFormData] = useState<CreateBookingInput>({
-    kol_id: "",
-    product_id: "",
-    campaign_id: "",
-    code: "",
-    content_type: "Review sản phẩm",
-    booking_fee: 0,
-    commission_rate: 0,
-    ads_rate: 0,
-    status: "contacted",
-    sample_product_notes: "",
-    sample_sent_at: "",
-    sample_expected_at: "",
-    sample_delivered_at: "",
-    sample_tracking_code: "",
-    sample_carrier: "GHTK",
-    recipient_name: "",
-    recipient_phone: "",
-    recipient_address: "",
-    video_reminder_at: "",
-    expected_post_at: "",
-    payment_status: "unpaid",
-    paid_amount: 0,
-    notes: "",
-  });
+  const [formData, setFormData] = useState<CreateBookingInput>(() =>
+    createInitialFormData(editingBooking, kols, products, campaigns)
+  );
 
   const [formError, setFormError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (editingBooking) {
-      setFormData({
-        kol_id: editingBooking.kol_id,
-        product_id: editingBooking.product_id || "",
-        campaign_id: editingBooking.campaign_id || "",
-        code: editingBooking.code || "",
-        content_type: editingBooking.content_type || "Review sản phẩm",
-        booking_fee: Number(editingBooking.booking_fee) || 0,
-        commission_rate: Number(editingBooking.commission_rate) || 0,
-        ads_rate: Number(editingBooking.ads_rate) || 0,
-        status: editingBooking.status,
-        sample_product_notes: editingBooking.sample_product_notes || "",
-        sample_sent_at: editingBooking.sample_sent_at ? editingBooking.sample_sent_at.slice(0, 10) : "",
-        sample_expected_at: editingBooking.sample_expected_at || "",
-        sample_delivered_at: editingBooking.sample_delivered_at ? editingBooking.sample_delivered_at.slice(0, 10) : "",
-        sample_tracking_code: editingBooking.sample_tracking_code || "",
-        sample_carrier: editingBooking.sample_carrier || "GHTK",
-        recipient_name: editingBooking.recipient_name || "",
-        recipient_phone: editingBooking.recipient_phone || "",
-        recipient_address: editingBooking.recipient_address || "",
-        video_reminder_at: editingBooking.video_reminder_at || "",
-        expected_post_at: editingBooking.expected_post_at || "",
-        payment_status: editingBooking.payment_status,
-        paid_amount: Number(editingBooking.paid_amount) || 0,
-        notes: editingBooking.notes || "",
-      });
-    } else {
-      const firstKol = kols[0];
-      const firstProduct = products[0];
-      setFormData({
-        kol_id: firstKol?.id || "",
-        product_id: firstProduct?.id || "",
-        campaign_id: campaigns[0]?.id || "",
-        code: "",
-        content_type: "Review sản phẩm",
-        booking_fee: 0,
-        commission_rate: firstProduct?.default_commission_rate || 0,
-        ads_rate: firstProduct?.default_ads_rate || 0,
-        status: "contacted",
-        sample_product_notes: "",
-        sample_sent_at: "",
-        sample_expected_at: "",
-        sample_delivered_at: "",
-        sample_tracking_code: "",
-        sample_carrier: "GHTK",
-        recipient_name: firstKol?.display_name || firstKol?.username || "",
-        recipient_phone: firstKol?.contact_phone || "",
-        recipient_address: firstKol?.address || "",
-        video_reminder_at: "",
-        expected_post_at: "",
-        payment_status: "unpaid",
-        paid_amount: 0,
-        notes: "",
-      });
-    }
-    setFormError(null);
-  }, [editingBooking, isOpen, kols, products, campaigns]);
 
   if (!isOpen) return null;
 
@@ -164,6 +145,9 @@ export default function BookingFormModal({
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={editingBooking ? "Chỉnh sửa Booking" : "Tạo Booking Hợp tác mới"}
       onClick={onClose}
       className="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
     >

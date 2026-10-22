@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type {
   Booking,
   BookingStatus,
@@ -87,33 +87,35 @@ export default function BookingsClient({
     type: "success" | "error";
   } | null>(null);
 
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
 
   // Load preferences from localStorage on mount
   useEffect(() => {
-    try {
-      const savedMode = localStorage.getItem(STORAGE_KEYS.VIEW_MODE) as BookingViewMode | null;
-      if (savedMode === "table" || savedMode === "kanban" || savedMode === "analytics") {
-        setViewMode(savedMode);
-      }
-      const savedPreset = localStorage.getItem(STORAGE_KEYS.ACTIVE_PRESET) as ViewPreset | "custom" | null;
-      if (savedPreset) {
-        setActivePreset(savedPreset);
-      }
-      const savedCols = localStorage.getItem(STORAGE_KEYS.VISIBLE_COLUMNS);
-      if (savedCols) {
-        const parsed = JSON.parse(savedCols);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setVisibleColumns(parsed);
+    queueMicrotask(() => {
+      try {
+        const savedMode = localStorage.getItem(STORAGE_KEYS.VIEW_MODE) as BookingViewMode | null;
+        if (savedMode === "table" || savedMode === "kanban" || savedMode === "analytics") {
+          setViewMode(savedMode);
         }
+        const savedPreset = localStorage.getItem(STORAGE_KEYS.ACTIVE_PRESET) as ViewPreset | "custom" | null;
+        if (savedPreset) {
+          setActivePreset(savedPreset);
+        }
+        const savedCols = localStorage.getItem(STORAGE_KEYS.VISIBLE_COLUMNS);
+        if (savedCols) {
+          const parsed = JSON.parse(savedCols);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setVisibleColumns(parsed);
+          }
+        }
+        const savedSortField = localStorage.getItem(STORAGE_KEYS.SORT_FIELD) as SortField | null;
+        if (savedSortField) setSortField(savedSortField);
+        const savedSortDir = localStorage.getItem(STORAGE_KEYS.SORT_DIR) as SortDirection | null;
+        if (savedSortDir) setSortDirection(savedSortDir);
+      } catch {
+        // Ignore localStorage read errors
       }
-      const savedSortField = localStorage.getItem(STORAGE_KEYS.SORT_FIELD) as SortField | null;
-      if (savedSortField) setSortField(savedSortField);
-      const savedSortDir = localStorage.getItem(STORAGE_KEYS.SORT_DIR) as SortDirection | null;
-      if (savedSortDir) setSortDirection(savedSortDir);
-    } catch {
-      // Ignore localStorage read errors
-    }
+    });
   }, []);
 
   // Background non-blocking load for KOLs & Products dropdowns if empty
@@ -177,20 +179,9 @@ export default function BookingsClient({
     } catch {}
   };
 
-  // Keyboard shortcut: 'N' to toggle quick add row (when not in input)
+  // Escape key handler for drawer, modals, and quick add row
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        (e.key === "n" || e.key === "N") &&
-        !["INPUT", "TEXTAREA", "SELECT"].includes((e.target as HTMLElement)?.tagName) &&
-        !isModalOpen &&
-        !detailBooking
-      ) {
-        if (viewMode === "table") {
-          e.preventDefault();
-          setShowQuickAdd((prev) => !prev);
-        }
-      }
       if (e.key === "Escape") {
         if (confirmDeleteBooking) setConfirmDeleteBooking(null);
         else if (isModalOpen) setIsModalOpen(false);
@@ -200,7 +191,7 @@ export default function BookingsClient({
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [confirmDeleteBooking, isModalOpen, detailBooking, showQuickAdd, viewMode]);
+  }, [confirmDeleteBooking, isModalOpen, detailBooking, showQuickAdd]);
 
   // Filtered & Sorted Bookings
   const filteredBookings = useMemo(() => {
@@ -211,12 +202,14 @@ export default function BookingsClient({
 
       if (deadlineFilter !== "all") {
         if (!b.expected_post_at) return false;
+        if (["posted", "completed", "cancelled"].includes(b.status)) return false;
+        const [y, m, d] = b.expected_post_at.split("T")[0].split("-").map(Number);
+        if (!y || !m || !d) return false;
         const now = new Date();
-        now.setHours(0, 0, 0, 0);
-        const target = new Date(b.expected_post_at);
-        target.setHours(0, 0, 0, 0);
-        const diffDays = Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-        if (deadlineFilter === "urgent" && (diffDays < 0 || diffDays > 2)) return false;
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const target = new Date(y, m - 1, d);
+        const diffDays = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        if (deadlineFilter === "urgent" && (diffDays < 0 || diffDays > 3)) return false;
         if (deadlineFilter === "overdue" && diffDays >= 0) return false;
       }
 
@@ -392,8 +385,9 @@ export default function BookingsClient({
   // --- MODAL FORM SUBMIT (CREATE / EDIT) ---
 
   const handleModalSubmit = async (data: CreateBookingInput): Promise<boolean> => {
+    setIsPending(true);
     try {
-      if (editingBooking) {
+      if (editingBooking && editingBooking.id) {
         const res = await updateBooking(editingBooking.id, data);
         if (res.error) {
           showToast(`Lỗi cập nhật: ${res.error}`, "error");
@@ -425,6 +419,8 @@ export default function BookingsClient({
     } catch {
       showToast("Lỗi máy chủ", "error");
       return false;
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -565,7 +561,7 @@ export default function BookingsClient({
   };
 
   return (
-    <div className="space-y-4 pb-24">
+    <div className="w-full flex flex-col pb-24">
       {/* Toast Notification */}
       {toastMessage && (
         <div
@@ -580,76 +576,82 @@ export default function BookingsClient({
         </div>
       )}
 
-      {/* TOOLBAR (Search, Filters, Column Customizer, Quick Add Toggle, Bulk Actions, View Mode) */}
-      <BookingsToolbar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        viewMode={viewMode}
-        onViewModeChange={handleViewModeChange}
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
-        campaignFilter={campaignFilter}
-        onCampaignFilterChange={setCampaignFilter}
-        paymentFilter={paymentFilter}
-        onPaymentFilterChange={setPaymentFilter}
-        deadlineFilter={deadlineFilter}
-        onDeadlineFilterChange={setDeadlineFilter}
-        campaigns={campaigns}
-        totalBookingsCount={bookings.length}
-        isAnyFilterActive={isAnyFilterActive}
-        onResetFilters={handleResetFilters}
-        visibleColumns={visibleColumns}
-        onChangeColumns={handleColumnsChange}
-        activePreset={activePreset}
-        onSelectPreset={handleSelectPreset}
-        showQuickAdd={showQuickAdd}
-        onToggleQuickAdd={() => setShowQuickAdd((prev) => !prev)}
-        selectedCount={selectedIds.length}
-        onBulkStatusChange={handleBulkStatusChange}
-        onBulkMarkPaid={handleBulkMarkPaid}
-        onBulkDelete={handleBulkDelete}
-        onClearSelection={() => setSelectedIds([])}
-      />
-
-      {/* MAIN VIEW: TABLE / KANBAN / TIẾN ĐỘ & ROI */}
-      {viewMode === "analytics" ? (
-        <div className="space-y-4 animate-in fade-in duration-150">
-          <BookingsRoiDashboard bookings={filteredBookings} />
-        </div>
-      ) : viewMode === "kanban" ? (
-        <BookingKanban
-          bookings={filteredBookings}
-          onOpenDetail={(b) => setDetailBooking(b)}
-          onAdvanceStatus={handleUpdateStatus}
-          onStatusDrop={handleUpdateStatus}
-        />
-      ) : (
-        <BookingTable
-          bookings={filteredBookings}
-          visibleColumns={visibleColumns}
-          sortField={sortField}
-          sortDirection={sortDirection}
-          onSort={handleSort}
-          selectedIds={selectedIds}
-          onToggleSelect={handleToggleSelect}
-          onToggleSelectAll={handleToggleSelectAll}
-          onOpenDetail={(b) => setDetailBooking(b)}
-          onClone={handleCloneBooking}
-          onDelete={(b) => setConfirmDeleteBooking(b)}
-          onUpdateStatus={handleUpdateStatus}
-          onUpdateBooking={handleUpdateBooking}
-          showQuickAdd={showQuickAdd}
-          onCloseQuickAdd={() => setShowQuickAdd(false)}
-          onCreateQuickAdd={handleCreateQuickAdd}
-          kols={kols}
-          products={products}
+      {/* UNIFIED FULL-BLEED WORKSPACE CONTAINER (Toolbar + Table integrated) */}
+      <div className="w-full bg-white dark:bg-zinc-900 border-y border-zinc-200/90 dark:border-zinc-800 shadow-2xs overflow-hidden">
+        {/* Integrated Header Toolbar (Search, Filters, Column Customizer, Quick Add Toggle, View Mode) */}
+        <BookingsToolbar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          viewMode={viewMode}
+          onViewModeChange={handleViewModeChange}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          campaignFilter={campaignFilter}
+          onCampaignFilterChange={setCampaignFilter}
+          paymentFilter={paymentFilter}
+          onPaymentFilterChange={setPaymentFilter}
+          deadlineFilter={deadlineFilter}
+          onDeadlineFilterChange={setDeadlineFilter}
           campaigns={campaigns}
+          totalBookingsCount={bookings.length}
+          isAnyFilterActive={isAnyFilterActive}
+          onResetFilters={handleResetFilters}
+          visibleColumns={visibleColumns}
+          onChangeColumns={handleColumnsChange}
+          activePreset={activePreset}
+          onSelectPreset={handleSelectPreset}
+          showQuickAdd={showQuickAdd}
+          onToggleQuickAdd={() => setShowQuickAdd((prev) => !prev)}
+          selectedCount={selectedIds.length}
+          onBulkStatusChange={handleBulkStatusChange}
+          onBulkMarkPaid={handleBulkMarkPaid}
+          onBulkDelete={handleBulkDelete}
+          onClearSelection={() => setSelectedIds([])}
         />
-      )}
+
+        {/* MAIN VIEW: TABLE / KANBAN / TIẾN ĐỘ & ROI */}
+        {viewMode === "analytics" ? (
+          <div className="p-4 sm:p-6 animate-in fade-in duration-150">
+            <BookingsRoiDashboard bookings={filteredBookings} />
+          </div>
+        ) : viewMode === "kanban" ? (
+          <div className="p-3 sm:p-4">
+            <BookingKanban
+              bookings={filteredBookings}
+              onOpenDetail={(b) => setDetailBooking(b)}
+              onAdvanceStatus={handleUpdateStatus}
+              onStatusDrop={handleUpdateStatus}
+            />
+          </div>
+        ) : (
+          <BookingTable
+            bookings={filteredBookings}
+            visibleColumns={visibleColumns}
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSort={handleSort}
+            selectedIds={selectedIds}
+            onToggleSelect={handleToggleSelect}
+            onToggleSelectAll={handleToggleSelectAll}
+            onOpenDetail={(b) => setDetailBooking(b)}
+            onClone={handleCloneBooking}
+            onDelete={(b) => setConfirmDeleteBooking(b)}
+            onUpdateStatus={handleUpdateStatus}
+            onUpdateBooking={handleUpdateBooking}
+            showQuickAdd={showQuickAdd}
+            onCloseQuickAdd={() => setShowQuickAdd(false)}
+            onCreateQuickAdd={handleCreateQuickAdd}
+            kols={kols}
+            products={products}
+            campaigns={campaigns}
+          />
+        )}
+      </div>
 
       {/* INSPECTION DRAWER */}
       {detailBooking && (
         <BookingDetailDrawer
+          key={detailBooking.id}
           booking={detailBooking}
           onClose={() => setDetailBooking(null)}
           onOpenEdit={(b) => {
@@ -657,11 +659,20 @@ export default function BookingsClient({
             setIsModalOpen(true);
           }}
           onAdvanceStatus={handleUpdateStatus}
+          onVideosChange={(bookingId, updatedVideos) => {
+            setBookings((prev) =>
+              prev.map((b) => (b.id === bookingId ? { ...b, videos: updatedVideos } : b))
+            );
+            setDetailBooking((prev) =>
+              prev && prev.id === bookingId ? { ...prev, videos: updatedVideos } : prev
+            );
+          }}
         />
       )}
 
       {/* CREATE / EDIT BOOKING MODAL */}
       <BookingFormModal
+        key={`${isModalOpen}-${editingBooking?.id ?? "new"}-${editingBooking ? "edit" : "create"}`}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         editingBooking={editingBooking}
@@ -698,7 +709,14 @@ export default function BookingsClient({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
               </svg>
             ),
-            onClick: () => setShowQuickAdd((prev) => !prev),
+            onClick: () => {
+              if (viewMode !== "table") {
+                handleViewModeChange("table");
+                setShowQuickAdd(true);
+              } else {
+                setShowQuickAdd((prev) => !prev);
+              }
+            },
             active: showQuickAdd,
             shortcut: "n",
             title: "Bật/Tắt hàng nhập liệu tức thì trên bảng (Phím N)",
